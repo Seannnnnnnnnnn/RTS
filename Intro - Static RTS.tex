@@ -1,0 +1,93 @@
+% DOCUMENT DEDICATED TO DESCRIBING THE ALGORITHM USED TO SOLVE THE BASIC RTS PROBLEM
+
+\subsection{Constrained RTS}
+In the Constrained RTS problem, we restrict the problem conditions as follows: 
+\begin{itemize}
+    \item  All queries $q_i = (R_{q_i}, \tau_{q_i})$ are defined at the beginning of the data stream, and each $R_{q_i}$ corresponds to a half-open interval of the form $R_{q_i} = [x,y)$
+    \item We restrict the dimensionality of the data stream to the $d=1$ case, and also assume that the stream is uniformally weighted such that $w(e_t) = 1$ for all $t$. 
+\end{itemize}
+We present the details of the \textit{DT Algorithm} \cite{Gan}, which corresponds to a solution of the Constrained RTS problem. First, we introduce pieces of terminology that will be useful throughout the remainder of this thesis. \\
+\\
+Denote by $Q^*$ the set of pre-registered queries $\{q_1, \dots, q_m\}$, as each query corresponds to an interval $R_q = [x_q,y_q)$\footnote{It is sufficient to assume that each search interval is a half open interval}. The Algorithm works by first constructing a Binary Search Tree $\mathcal{T}$ on the endpoints of the queries' intervals; from here we refer to $\mathcal{T}$ as the \textit{endpoint tree}. We define for each internal node a Jurisdiction Interval as follows: 
+
+\begin{definition}[Jursidiction Interval]
+    for each $u\in V(\mathcal{T})$ we define the Jurisdiction Interval $I(u)$ of $u$ to be: 
+    \begin{enumerate}
+        \item if $u$ is a leaf, $I(u) = [u,u^\prime)$ where $u^\prime$ denotes the successor leaf of $u$, with $u^\prime := +\infty$ in the case that such a successor leaf does not exist. 
+        \item if $u$ is not a leaf, let $x,y = \text{children}(u)$ and then define $I(u) = I(x) \cup I(y)$ recursively.
+    \end{enumerate}
+\end{definition}
+In addition to to each node containing a Jurisdiction Interval, each node is a assigned a counter $c(u)$, each initialised to 0 at the commencement of the algorithm. For an incoming stream element $e$ if $v(e)$ is less than the leftmost endpoint, we safely ignore $e$, otherwise we trace a root-to-leaf path, incrementing the counter of each node $u$ such that $v(e)\in I(u)$. \\
+\\
+The essence of the DT algorithm is to map these counter increments to instances of Distributed Tracking, so that the amount of message-passing to determine the precise moment that the sum of counters related to a query $q$ reaches $\tau_q$ is minimised. To do this, the algorithm defines a \textit{canonical node set} for each query as follows: 
+
+\begin{definition}[Canonical Node Set]
+    For a preregistered query $q$ we define the canonical node set of $q$ to be the smallest collection of nodes $\{u_i, \dots, u_j\}\subseteq V(\mathcal{T})$ such that 
+    $$\bigcup_{k=i}^{j}I(u_k) = R_q \hspace{5mm} \text{and} \hspace{5mm} I(u_i)\cap I(u_j) = \emptyset$$
+\end{definition}
+The algorithm now defines a conceptual Distribution Tracking problem instance for each $q\in Q^*$ with canonical node set $U_q$ as follows. There are $|U_q|$ participants, which correspond to the nodes of $u\in U_q$, with counters $c(u)$. The query itself plays the role of the \textit{coordinator} whose goal is capture maturity the instant that the following condition occurs: 
+$$\sum_{u \in U_q}c(u) = \tau_q$$
+Recall from our Distributed Tracking algorithm\ref{Algorithm 1}, each $u\in U_q$ also has associated slack value $\lambda = \lfloor \tau/2h \rfloor$. As we increment internal node counters when processing a stream element, we correspond to updating counters within the associated Distributed Tracking instance. \\
+\\
+The final piece of the algorithm is to describe how to handle inspecting the slack values of each Distributed Tracking instance. 
+To do so, the algorithm constructs a a binary min heap $\mathcal{H}(u)$ for each $u\in V(\mathcal{T})$, where the heap contains all queries $q$ such that $u\in U_q$. The min heap is keyed by 
+\begin{align}
+    \sigma_q(u) := \lambda_q + \Bar{c}_q(u)
+\end{align}
+The motivation for defining such a heap on each internal node is to reduce the overall messaging cost amongst the Distributed Tracking instances. For example, suppose $q_i$ and $q_j$ both contain $u$ in their canonical node sets, and $\tau_{q_i} < \tau_{q_j}$ which implies that $\lambda_{q_i} < \lambda_{q_j}$. Note that this implies that we can safely ignore inspecting the slack condition of Distributed Tracking instance associated with $q_j$ if we now that the slack condition associated with $q_i$ does not require processing. \\
+\\
+The final step of the algorithm is to trace a root-to-leaf path for an incoming stream element. Whenever $c(u)$ changes for a node $u$ the algorithm performs the following steps: \begin{enumerate}
+    \item Inspect the minimum $\sigma_q(u)$ in $\mathcal{H}(u)$
+    \item If $c(u) < \sigma_q(u)$ then we are done.
+    \item Otherwise, remove $\sigma_q(u)$ from $\mathcal{H}(u)$ and instruct $u$ to send a signal to $q$ (As in Algorithm \ref{Algorithm 1}). Then repeat from line 1. 
+\end{enumerate}
+Succinctly, we can described the DT algorithm as follows: 
+\begin{algorithm}
+\caption{DT }\label{Algorithm 2}
+\begin{algorithmic}
+\Require a set $Q^*$ of pre-registered RTS queries $q_i = (R_{q_i}, \tau_{q_i})$
+\State Construct Seg Tree $\mathcal{T}$ on endpoints of $R_1, \dots, R_m$
+\For{ each $u\in V(\mathcal{T})$}
+    \State $c(u)\gets 0$
+    \State Determine Jurisdiction Interval $I(u)$
+\EndFor
+\For{ each $q\in Q^*$ }
+    \State Determine $U_q$
+    \State Create \textit{Distributed Tracking} instance with slack $\lambda_q = \lfloor \tau/2h\rfloor$ and auxiliary counter $\Bar{c_q}\gets0$
+\EndFor
+\For{ each $u\in V(\mathcal{T})$}
+    \State Construct $\mathcal{H}(u)$ on $q\subset Q^* : u\in U_q$ with key $\sigma_q(u) := \lambda_q + \Bar{c_q}(u)$
+\EndFor
+\For{ $t=1,\dots$ process stream element $e_t$ as follows }
+    \State Trace root-to-leaf path $P$ based on $v(e_t)$
+    \State Set $c(u) \gets c(u)+1$ for each $u\in P$
+    \For{ each $u \in P$}
+        \State peak-min in $\mathcal{H}(u)$
+        \State If $c(u) < \sigma_q(u)$ pass
+        \State Otherwise , remove $\sigma_q(u)$ from $\mathcal{H}(u)$ and instruct $u$ to send a signal to $q$ then repeat from peak-min.
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+We now prove that the DT algorithm described solves the constrained RTS problem in quadratic run time, up to a logarithmic factor.
+
+\begin{lemma}[Finding Canonical Node Sets in Logarithmic Time]
+    For a set of $m$ pre-registered RTS queries $q$, one can determine $U_q$ in $O(\log m)$ 
+\end{lemma}
+\begin{proof}
+    Let $R_q = [x,y)$ and $z_1, z_2$ be the leaves associated with $x, y$ in the endpoint tree. To determine $U_{q}$ let $u$ be the lowest common ancestor of $z_1, z_2$ and then invoke ADD($u$) where:
+    \begin{algorithmic}[1]
+    \Procedure{Add}{$u$}
+        \State If $I(u)\subseteq[x,y)$ return $\{u\}$
+        \State Else if $I(u)\cap[x,y) = \emptyset$ return $\emptyset$
+        \State Else $u_1, u_2 \gets \text{children}(u)$ return ADD($u_1) \cup $ ADD($u_2$)
+    \EndProcedure
+    \end{algorithmic}
+    The procedure correctly determines the canonical node set, with all added nodes are guaranteed to have disjoint Jurisdiction Intervals by step 4. In the worst case, $u$ is taken to be the root node, which would require a maximum recursive depth of $O(\log m)$. 
+\end{proof}
+
+\begin{theorem}[DT is Computationally Polylogarithmic] For a data stream of $n$ elements and $m$ preregistered RTS queries, the DT algorithm requires runtime $O(n\log m + m\log^2m\log \tau_{max})$ where $\tau_{max}$ is the largest threshold in the query set. 
+\end{theorem}
+\begin{proof}
+    
+\end{proof}

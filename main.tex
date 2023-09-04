@@ -1,0 +1,113 @@
+\documentclass{article}
+
+% PACKAGES 
+\usepackage[utf8]{inputenc}
+\usepackage{amsbsy}
+\usepackage{fixltx2e}
+\usepackage{amsfonts}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{color} 
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+\usepackage{appendix}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{minted}
+\def\code#1{\texttt{#1}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+
+% Theorem environments
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+
+% Title page
+
+\begin{document}
+
+
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
+
+       \textbf{Dynamic Range Queries on Streams}
+
+       \vspace{0.5cm}
+        A study of efficient Data Structures \& Algorithms for dynamic triggers in Stream Computing
+            
+       \vspace{1.5cm}
+
+       \textbf{Author:} Sean Conlon \\
+       \textbf{Supervisor(s):} Dr. Junhao Gan, Dr. William Umboh, Dr. Charl Ras
+
+       \vfill
+            
+       A thesis presented for the degree of\\
+       Master of Science (Mathematics \& Statistics) 
+            
+       \vspace{0.8cm}
+     
+       \includegraphics[width=0.3\textwidth]{images/uomlogo.png}
+            
+       School of Mathematics \& Statistics, School of Information Systems\\
+       The University of Melbourne\\
+       Victoria, Australia\\
+       Date: TBA
+            
+   \end{center}
+\end{titlepage}
+
+
+
+\newpage
+%%LITLE BIT OF THANKYOU'S%%
+\section*{Acknowledgements}
+I love my family and friends and everyone else 
+
+
+
+%%TABLE OF CONTENTS%%
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+\setcounter{page}{1}
+
+
+
+
+\newpage
+\include{Intro} 
+\include{Intro - DistTracking}
+\include{Intro - Static RTS}
+
+
+\newpage
+
+\newpage
+\include{appendix/Appendix}
+\include{appendix/Appendix - LogTrick}
+\include{appendix/Appendix - Heapify}
+
+\newpage
+\bibliographystyle{unsrt}%Used BibTeX style is unsrt
+\bibliography{sample}
+
+
+\end{document}

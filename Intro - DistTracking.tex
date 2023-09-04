@@ -1,0 +1,54 @@
+\subsection{Distributed Tracking}
+
+Perhaps the most enlightening discovery of prior literature on RTS is the connection to the seemingly remote problem of \textit{Distributed Tracking} \cite{Gan}. A problem of study from Distributed Computing, Distributed Tracking models the following scenario \cite{Cormode}: Consider a coordinator $q$ and a set of participcants $s_1, \dots, s_h$. Each participant has a corresponding counter $c_i$ initialised to 0, and the coordinator has a tolerance $\tau\in\mathbb{N}$. At each time step, at most one of the counters $c_i$ are incremented; that is, one or zero counters increase.  The goal of the Distributed Tracking is for the coordinator to report the instant that 
+\begin{align}
+    \sum_{i=1}^{h}c_i = \tau
+\end{align}
+Of course, for $t=1,\dots$ the coordinator can query each participant, assuming $O(1)$ messaging cost, this results in  $\Omega(\tau h)$ messages. The goal of Distributed Tracking is to design an algorithm that minimises such message costs. \\
+\\
+We consider the following algorithm presented by Cormorde, Muthukrishnan and Yi \cite{Cormode} which solves the distributed tracking problem in $O(h\log \tau)$ messages
+
+%TODO: Finish this! 
+\begin{algorithm}
+\caption{Distributed Tracking }\label{Algorithm 1}
+\begin{algorithmic}
+\Require $\tau > 0$
+\If{$\tau < 6h$}
+    \State \text{solve directly by sending $O(\tau) = O(h)$ messages}
+\ElsIf{$\tau \geq 6h$}
+    \State \text{assign to each participant a \textit{slack} value of $\lambda = \lfloor\tau/2h \rfloor$} 
+    \State \text{for each participant assign counter $\Bar{c_i}\gets 0$ }
+    \For{$t = 1,\dots$} \Comment{time steps at which $c_i$ are possibly incremeneted}
+        \If{$c_i - \Bar{c_i} = \lambda$}
+            \State participant $s_i$ transmits signal
+        \EndIf
+    \EndFor
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{theorem}[Distributed Tracking is Sub-Quadratic] For a Distributed Tracking instance with $h$ participants and coordinator threshold of $\tau$, maturity can be reported in $O(h\log\tau)$ messages
+\end{theorem}
+\begin{proof}
+    It is clear that $O(h)$ messages are transmitted each round. We now bound the number of rounds that are required by the algorithm. At the conclusion of each round, the working threshold $\tau^\prime$ is reduced by a factor of: 
+    \begin{align*}
+        \tau^\prime &= \tau - \sum_{i=1}^{h}c_i \\
+        &\leq \tau - \sum_{i=1}^{h}\left\lfloor \frac{\tau}{2h}\right\rfloor \\
+        &\leq \tau - \sum_{i=1}^{h} \left(\frac{\tau}{2h} - 1\right) \\
+        &= \tau - \frac{\tau}{2} + h = \frac{\tau}{2} + h
+    \end{align*}
+    Using $\tau \leq 6h$ gives
+    \begin{align*}
+        \frac{\tau}{2} +h &\leq \frac{\tau}{2} + \frac{\tau}{6} \\
+        &= \frac{2\tau}{3}
+    \end{align*}
+    Which implies the working threshold reduces by a factor of $2\tau/3$, using standard analysis techniques for algorithms implies $O(\log \tau)$ rounds. 
+\end{proof}
+
+
+\begin{theorem}[Correctness of Distributed Tracking] Distributed Tracking correctly reports the instant of maturity.
+\end{theorem}
+\begin{proof}
+    
+\end{proof}
