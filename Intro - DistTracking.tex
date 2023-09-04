@@ -1,3 +1,5 @@
+%% All things Dist. Tracking and Weighted Dist. Tracking
+
 \subsection{Distributed Tracking}
 
 Perhaps the most enlightening discovery of prior literature on RTS is the connection to the seemingly remote problem of \textit{Distributed Tracking} \cite{Gan}. A problem of study from Distributed Computing, Distributed Tracking models the following scenario \cite{Cormode}: Consider a coordinator $q$ and a set of participcants $s_1, \dots, s_h$. Each participant has a corresponding counter $c_i$ initialised to 0, and the coordinator has a tolerance $\tau\in\mathbb{N}$. At each time step, at most one of the counters $c_i$ are incremented; that is, one or zero counters increase.  The goal of the Distributed Tracking is for the coordinator to report the instant that 
@@ -52,3 +54,44 @@ We consider the following algorithm presented by Cormorde, Muthukrishnan and Yi 
 \begin{proof}
     
 \end{proof}
+\todo{finish off proof}
+
+
+\subsection{Weighted Distributed Tracking}
+
+A slight modification which will be of later importance is to account for counter increments of the form
+$$c_i \leftarrow c_i + w \quad w \in \mathbb{N}$$
+Note that this results in a modified maturity condition to determining the instant that 
+\begin{align}
+    \sum_{i=1}^{h}c_i \geq \tau
+\end{align}
+Of course, one could reduce this to performing $c_i \leftarrow c_i +1$ increments $w$ times, and one can recover Algorithm \ref{Algorithm 1} with unaltered run time. However, if one assumes performing an increment requires $O(1)$ \texttt{CPU} time, this results in $O(\tau + h\log\tau)$ CPU time, which can become unnecessarily slow if $\tau$ is large.
+Through slight modification however we can reduce the \texttt{CPU} time to $O(n+h\log\tau)$, where $n$ is the number of increments required for $(2)$ to hold.
+
+\begin{algorithm}
+\caption{Integer Distributed Tracking }\label{Algorithm 3}
+\begin{algorithmic}
+    \If{$\tau \leq 6h$}
+        \State solve directly by sending $O(\tau) = O(h)$ messages
+    \ElsIf{$\tau > 6h$}
+        \State $q$ launches a round by informing $s_i$ of slack $\lambda = \lfloor \tau/2h \rfloor$
+        \State assign $\Bar{c}_i \gets 0$ to each participant
+        \State after incrementing counters if $c_i - \Bar{c}_i \geq \lambda$
+        \begin{enumerate}
+            \item $s_i$ sends a signal to $q$ and update $\Bar{c}_i \gets \Bar{c_i} + \lambda$
+            \item if $c_i - \Bar{c}_i \geq \lambda$ and $q$ has not anounced the end of the round, repeat from step 1.
+        \end{enumerate}
+    \EndIf
+\end{algorithmic}
+\end{algorithm}
+By reprising the proof of Theorem 1.1, The algorithm clearly terminates in $O(h\log\tau)$ messages with $O(n + h\log\tau)$ compute. We now close out this section by providing a short proof of correctness for Algorithm 2. 
+\begin{theorem}[Correctness] The Integer Distributed Tracking presented correctly reports the instant that $\sum_{i=1}^{h}c_i \geq \tau$
+\end{theorem}
+\begin{proof}
+    If a round still has not finished at the end of a timestamp it must hold that 
+    \begin{align*}
+        \sum_{i=1}^{h}c_i &\leq \lambda (h-1) + \sum_{i=1}^{h}(c_i - \Bar{c}_i) \\
+        &\leq \lambda(h-1) + \lambda h \leq \tau
+    \end{align*}
+\end{proof}
+\todo{flesh out more}
