@@ -53,10 +53,10 @@ Succinctly, we can described the DT algorithm as follows:
 \EndFor
 \For{ each $q\in Q^*$ }
     \State Determine $U_q$
-    \State Create \textit{Distributed Tracking} instance with slack $\lambda_q = \lfloor \tau/2h\rfloor$ and auxiliary counter $\Bar{c_q}\gets0$
+    \State Create \textit{Distributed Tracking} instance with slack $\lambda_q = \lfloor \tau_q/2h\rfloor$ and auxiliary counter $\Bar{c_q}\gets0$
 \EndFor
 \For{ each $u\in V(\mathcal{T})$}
-    \State Construct $\mathcal{H}(u)$ on $q\subset Q^* : u\in U_q$ with key $\sigma_q(u) := \lambda_q + \Bar{c_q}(u)$
+    \State Construct $\mathcal{H}(u)$ on all $q\in Q^* : u\in U_q$ with key $\sigma_q(u) := \lambda_q + \Bar{c_q}(u)$
 \EndFor
 \For{ $t=1,\dots$ process stream element $e_t$ as follows }
     \State Trace root-to-leaf path $P$ based on $v(e_t)$
