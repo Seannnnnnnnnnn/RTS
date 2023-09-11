@@ -1,0 +1,16 @@
+\section{Variable RTS Queries}
+
+Previous research has only considered RTS queries $q$ of the form $q = (R, \tau)$ where $R$ is a \textit{fixed} subset of the real number line. For the remainder of this thesis, we consider a new type of RTS query, where the endpoint(s) of $R$ are able to vary over the lifetime of a query. For an immediate motivation to the practical importance of such queries, we return our attention to a hypothetical stock trader who pays attention to price sensitive intervals. Recall in this scenario that the data stream corresponds to market information, specifically where $v(e)$ relates to trade price, and $w(e)$ relates to volume. Suppose they now wish to register an RTS query of the form: 
+\begin{center}
+    \textit{Notify me when $\tau$ shares of \texttt{AAPL} are traded above 10\% of Volume Weighted Average Price (\text{VWAP)}}
+\end{center}
+Where VWAP is calcualated by 
+\begin{align}
+    \text{VWAP} = \frac{\sum_{i=1}^{n} w(e_i)v(e_i)}{\sum_{i=1}^{n}w(e_i)}
+\end{align}
+Such an RTS query range would therefore be $R = [11/10\text{VWAP}, \infty)$, as the left endpoint of the query changes with each coming stream element $e$, current RTS algorithms cannot support such queries. This leads us to consider a new type of query defined as follows:
+
+\begin{definition}[Variable RTS Query]
+    A variable RTS query $q$ is specified by a tuple $q = (R,\tau)$ where $\tau\in \mathbb{N}$ and $R = [f_1, f_2)$ where $f_1, f_2 : \{e\}\rightarrow\mathbb{R}$ satisfying $f_1 \leq f_2$
+\end{definition}
+As before, we consider a growing data stream of $n$ elements, on which we wish to process $m$ variable RTS queries. Of course, using a brute force approach as before still demands $O(nm)$ time, though we wish to prove that such queries can be supported in subquadratic time; ideally $\Tilde{O}(n+m)$

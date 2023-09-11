@@ -76,13 +76,15 @@ We now prove that the DT algorithm described solves the constrained RTS problem 
 \end{lemma}
 \begin{proof}
     Let $R_q = [x,y)$ and $z_1, z_2$ be the leaves associated with $x, y$ in the endpoint tree. To determine $U_{q}$ let $u$ be the lowest common ancestor of $z_1, z_2$ and then invoke ADD($u$) where:
-    \begin{algorithmic}[1]
+    \begin{algorithm}
+    \begin{algorithmic}
     \Procedure{Add}{$u$}
         \State If $I(u)\subseteq[x,y)$ return $\{u\}$
         \State Else if $I(u)\cap[x,y) = \emptyset$ return $\emptyset$
         \State Else $u_1, u_2 \gets \text{children}(u)$ return ADD($u_1) \cup $ ADD($u_2$)
     \EndProcedure
     \end{algorithmic}
+    \end{algorithm}
     The procedure correctly determines the canonical node set, with all added nodes are guaranteed to have disjoint Jurisdiction Intervals by step 4. In the worst case, $u$ is taken to be the root node, which would require a maximum recursive depth of $O(\log m)$. 
 \end{proof}
 
