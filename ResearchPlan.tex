@@ -1,0 +1,118 @@
+\documentclass{article}
+
+% PACKAGES 
+\usepackage[utf8]{inputenc}
+\usepackage{amsbsy}
+\usepackage{fixltx2e}
+\usepackage{amsfonts}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{color} 
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+\usepackage{appendix}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{minted}
+\def\code#1{\texttt{#1}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{pgfgantt}
+
+% Theorem environments
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+
+% Title page
+
+\begin{document}
+
+\section*{M.Sc Thesis Research Plan}
+
+The purpose of this document is to be a living formulation of my ongoing research plan to satisfactorily complete my M.Sc Thesis. It is important to note that this document is \textit{living}, and subject to change depending on research results or interests we develop.  For a quick overview of research milestones, we refer to the following Gantt Charts, broken out by research block: 
+
+\subsubsection*{Block 1 - Semester 2 2023 - Summer 2023} 
+The focus of research block 1 is to scope the state of the RTS problem, and to develop a solid understanding of the State of the Art solutions. Thesis writing over this period is to focus on cataloguing main results which may or may not be included in the final thesis. \\
+\\
+Once the state of current research is sufficiently scoped, we will move to defining the main foci of the thesis - exploring new results in dynamic RTS queries \textit{(d-RTS)}, as well as formulating a negative-weight RTS problem; then exploring some techniques to solve these problems. \\
+\\
+The research milestone for block 1 is the delivery of a literature review, of two-three pages in length, to supervisors within week 8 of the semester. 
+
+\begin{center}
+\begin{ganttchart}{1}{24}
+\gantttitle{S2 2023}{12}
+\gantttitle{Post Semester}{12}\\
+\gantttitlelist{1,...,24}{1} \\
+\ganttgroup{Thesis Writing}{4}{18} \\
+\ganttbar{Administrative Set Up}{1}{2} \\
+\ganttlinkedbar{Review RTS paper}{2}{5} \\
+\ganttlinkedbar{Define Dynamic RTS}{6}{8} \ganttnewline
+\ganttmilestone{Submit Literature Review}{8} \ganttnewline
+\ganttbar{discrete d-RTS cases}{9}{12}
+\ganttnewline
+\ganttgroup{Exam Period}{13}{15}
+\ganttnewline
+\ganttbar{negative weight RTS}{15}{18}
+\ganttvrule{End of Sem 2}{12}
+\ganttvrule{Internship}{18}
+\end{ganttchart}
+\end{center}
+
+\newpage
+\subsubsection*{Block 2 - Semester 1 2024 - Winter 2024}
+The focus of research block 2 is to further develop results and research for d-RTS queries, as well as wrap up results for the negative RTS case. As part of this research block, I have also included the Winter semester break, which ideally will be utilised for implementing any of the techniques studied in $\texttt{C/C++}$, and conducting performance studies. \\
+\\
+The research milestone for block 2 is the delivery of a\textit{research progress report} of 1-2 pages in length in week 8. The progress report is to outline the current state of the research project, and may result in necessary pivots / changes to the remainder of the research plan.
+
+\begin{center}
+\begin{ganttchart}{1}{22}
+\gantttitle{S2 2024}{12}
+\gantttitle{Post Semester}{10}\\
+\gantttitlelist{1,...,22}{1} \\
+\ganttgroup{Thesis Writing}{1}{22} \\
+\ganttnewline
+\ganttmilestone{Submit Research Progress Report}{8} 
+\ganttnewline
+\ganttgroup{Exam Period}{13}{15}
+\ganttnewline
+\ganttbar{Coding / Experiments}{18}{22}
+\ganttvrule{End of Sem 1}{12}
+\end{ganttchart}
+\end{center}
+
+
+\subsubsection*{Block 3 - Semester 2 2024}
+The focus of research block 3 is to conclude our exploration and studies on the topics chosen; as well as determine exactly what will make it into the final thesis.\\
+\\
+The research milestones for block 3 is the delivery of the final thesis in week 10 of the semester, as well as the delivery of an oral presentation of our research to an appropriate audience within the univeristy. Oral presentations can be arranged by the School of Mathematics \& Statistics, or by the School of Computing \& Information Systems.
+
+\begin{center}
+\begin{ganttchart}{1}{12}
+\gantttitle{S2 2024}{12}\\
+\gantttitlelist{1,...,12}{1} \\
+\ganttgroup{Thesis Writing}{1}{8} \\
+\ganttnewline
+\ganttbar{Final Thesis Edits}{8}{10}
+\ganttnewline
+\ganttmilestone{M.Sc Thesis Submission}{10} 
+\end{ganttchart}
+\end{center}
+
+
+\end{document}
