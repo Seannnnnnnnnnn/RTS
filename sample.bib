@@ -1,23 +1,63 @@
-@article{Gan,
-author = {Qiao, Miao and Gan, Junhao and Tao, Yufei},
-title = {Range Thresholding on Streams},
-year = {2016},
-isbn = {9781450335317},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/2882903.2915965},
-doi = {10.1145/2882903.2915965},
-abstract = {This paper studies a type of continuous queries called range thresholding on streams (RTS). Imagine the stream as an unbounded sequence of elements each of which is a real value. A query registers an interval, and must be notified as soon as a certain number of incoming elements fall into the interval. The system needs to support multiple queries simultaneously, and aims to minimize the space consumption and computation time. Currently, all the solutions to this problem entail quadratic time O(nm) to process n stream elements and m queries, which severely limits their applicability to only a small number of queries. We propose the first algorithm that breaks the quadratic barrier, by reducing the computation cost dramatically to O(n + m), subject only to a polylogarithmic factor. The algorithm is general enough to guarantee the same on weighted versions of the queries even in d-dimensional space of any constant d. Its vast advantage over the previous methods in practical environments has been confirmed through extensive experimentation.},
-booktitle = {Proceedings of the 2016 International Conference on Management of Data},
-pages = {571–582},
-numpages = {12},
-keywords = {algorithms, streams, range thresholding},
-location = {San Francisco, California, USA},
-series = {SIGMOD '16}
+@article{sweere2022deep,
+  title={Deep learning-based super-resolution and de-noising for XMM-newton images},
+  author={Sweere, Sam F and Valtchanov, Ivan and Lieu, Maggie and Vojtekova, Antonia and Verdugo, Eva and Santos-Lleo, Maria and Pacaud, Florian and Briassouli, Alexia and C{\'a}mpora P{\'e}rez, Daniel},
+  journal={Monthly Notices of the Royal Astronomical Society},
+  volume={517},
+  number={3},
+  pages={4054--4069},
+  year={2022},
+  publisher={Oxford University Press}
+}
+
+@article{vojtekova2021learning,
+  title={Learning to denoise astronomical images with U-nets},
+  author={Vojtekova, Antonia and Lieu, Maggie and Valtchanov, Ivan and Altieri, Bruno and Old, Lyndsay and Chen, Qifeng and Hroch, Filip},
+  journal={Monthly Notices of the Royal Astronomical Society},
+  volume={503},
+  number={3},
+  pages={3204--3215},
+  year={2021},
+  publisher={Oxford University Press}
 }
 
 
-@article{Cormode,
+@inproceedings{Gan2016,
+  author       = {Miao Qiao and
+                  Junhao Gan and
+                  Yufei Tao},
+  editor       = {Fatma {\"{O}}zcan and
+                  Georgia Koutrika and
+                  Sam Madden},
+  title        = {Range Thresholding on Streams},
+  booktitle    = {Proceedings of the 2016 International Conference on Management of
+                  Data, {SIGMOD} Conference 2016, San Francisco, CA, USA, June 26 -
+                  July 01, 2016},
+  pages        = {571--582},
+  publisher    = {{ACM}},
+  year         = {2016},
+  url          = {https://doi.org/10.1145/2882903.2915965},
+  doi          = {10.1145/2882903.2915965},
+  timestamp    = {Wed, 07 Dec 2022 23:08:47 +0100},
+  biburl       = {https://dblp.org/rec/conf/sigmod/QiaoGT16.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{BENTLEY1980301,
+title = {Decomposable searching problems I. Static-to-dynamic transformation},
+journal = {Journal of Algorithms},
+volume = {1},
+number = {4},
+pages = {301-358},
+year = {1980},
+issn = {0196-6774},
+doi = {https://doi.org/10.1016/0196-6774(80)90015-2},
+url = {https://www.sciencedirect.com/science/article/pii/0196677480900152},
+author = {Jon Louis Bentley and James B Saxe},
+abstract = {Transformations that serve as tools in the design of new data structures are investigated. Specifically, general methods for converting static structures (in which all elements are known before any searches are performed) to dynamic structures (in which insertions of new elements can be mixed with searches) are studied. Three classes of such transformations are exhibited, each based on a different counting scheme for representing the integers, and a combinatorial model is used to show the optimality of many of the transformations. Issues such as online data structures and deletion of elements are also examined. To demonstrate the applicability of these tools, several new data structures that have been developed by applying the transformations are studied.}
+}
+
+
+@article{Cormode2011,
 author = {Cormode, Graham and Muthukrishnan, S. and Yi, Ke},
 title = {Algorithms for Distributed Functional Monitoring},
 year = {2011},
@@ -34,20 +74,188 @@ journal = {ACM Trans. Algorithms},
 month = {mar},
 articleno = {21},
 numpages = {20},
-keywords = {functional monitoring, Distributed computing}
+keywords = {Distributed computing, functional monitoring}
+}
+
+@INPROCEEDINGS{RTrees,
+  author={Lueker, George S.},
+  booktitle={19th Annual Symposium on Foundations of Computer Science (sfcs 1978)}, 
+  title={A data structure for orthogonal range queries}, 
+  year={1978},
+  volume={},
+  number={},
+  pages={28-34},
+  doi={10.1109/SFCS.1978.1}}
+
+
+@book{DeBerg,
+author = {Berg, Mark de and Cheong, Otfried and Kreveld, Marc van and Overmars, Mark},
+title = {Computational Geometry: Algorithms and Applications},
+year = {2008},
+isbn = {3540779736},
+publisher = {Springer-Verlag TELOS},
+address = {Santa Clara, CA, USA},
+edition = {3rd ed.},
+abstract = {This well-accepted introduction to computational geometry is a textbook for high-level undergraduate and low-level graduate courses. The focus is on algorithms and hence the book is well suited for students in computer science and engineering. Motivation is provided from the application areas: all solutions and techniques from computational geometry are related to particular applications in robotics, graphics, CAD/CAM, and geographic information systems. For students this motivation will be especially welcome. Modern insights in computational geometry are used to provide solutions that are both efficient and easy to understand and implement. All the basic techniques and topics from computational geometry, as well as several more advanced topics, are covered. The book is largely self-contained and can be used for self-study by anyone with a basic background in algorithms. In this third edition, besides revisions to the second edition, new sections discussing Voronoi diagrams of line segments, farthest-point Voronoi diagrams, and realistic input models have been added.}
 }
 
 
-@article{BENTLEY1980301,
-title = {Decomposable searching problems I. Static-to-dynamic transformation},
-journal = {Journal of Algorithms},
-volume = {1},
-number = {4},
-pages = {301-358},
-year = {1980},
-issn = {0196-6774},
-doi = {https://doi.org/10.1016/0196-6774(80)90015-2},
-url = {https://www.sciencedirect.com/science/article/pii/0196677480900152},
-author = {Jon Louis Bentley and James B Saxe},
-abstract = {Transformations that serve as tools in the design of new data structures are investigated. Specifically, general methods for converting static structures (in which all elements are known before any searches are performed) to dynamic structures (in which insertions of new elements can be mixed with searches) are studied. Three classes of such transformations are exhibited, each based on a different counting scheme for representing the integers, and a combinatorial model is used to show the optimality of many of the transformations. Issues such as online data structures and deletion of elements are also examined. To demonstrate the applicability of these tools, several new data structures that have been developed by applying the transformations are studied.}
+@inproceedings{approxRTS,
+author = {Zhang, Zhuo and Gan, Junhao and Bao, Zhifeng and Kazemi, Seyed Mohammad Hussein and Chen, Guangyong and Zhu, Fengyuan},
+title = {Approximate Range Thresholding},
+year = {2022},
+isbn = {9781450392495},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3514221.3526123},
+doi = {10.1145/3514221.3526123},
+abstract = {In this paper, we study the (approximate) Range Thresholding (RT) problem over streams. Each stream element is a d-dimensional point and with a positive integer weight. An RT query q specifies a d-dimensional axis-parallel rectangular range R(q) and a positive integer threshold τ(q). Once the query q is registered in the system, define s(q) as the total weight of the elements that satisfy: (i) they arrive after q's registration, and (ii) they fall in the range R(q). Given a real number 0 &lt; ε &lt; 1, the task of the system is to capture an arbitrary moment during the period between the first moment when s(q) ≥ (1 - ε)⋅ τ(q) and the first moment when s(q) ≥ τ(q). The challenge is to support a large number of RT queries simultaneously while achieving sub-quadratic overall running time and near-linear space consumption all the time.We propose a new algorithm called FastRTS, which can reduce the exponent in the poly-logarithmic factor of the state-of-the-art QGT algorithm from d+1 to d, yet slightly increasing the \l{}og term itself. Besides, we propose two extremely effective optimization techniques which significantly improve the practical performance of FastRTS. Experimental results show that FastRTS outperforms the competitors by up to three orders of magnitude in both running time and peak memory usage.},
+booktitle = {Proceedings of the 2022 International Conference on Management of Data},
+pages = {1108–1121},
+numpages = {14},
+keywords = {data structures, range thresholding, algorithms, streams},
+location = {Philadelphia, PA, USA},
+series = {SIGMOD '22}
+}
+
+@article{CDSurvery,
+author = {Cormode, Graham},
+year = {2013},
+month = {05},
+pages = {5-14},
+title = {The Continuous Distributed Monitoring Model},
+volume = {42},
+journal = {ACM SIGMOD Record},
+doi = {10.1145/2481528.2481530}
+}
+
+
+
+@article{huang2011randomized,
+  author       = {Zengfeng Huang and
+                  Ke Yi and
+                  Qin Zhang},
+  title        = {Correction to: Randomized Algorithms for Tracking Distributed Count,
+                  Frequencies, and Ranks},
+  journal      = {Algorithmica},
+  volume       = {82},
+  number       = {11},
+  pages        = {3413},
+  year         = {2020},
+  url          = {https://doi.org/10.1007/s00453-020-00755-x},
+  doi          = {10.1007/s00453-020-00755-x},
+  timestamp    = {Sat, 14 Nov 2020 00:56:47 +0100},
+  biburl       = {https://dblp.org/rec/journals/algorithmica/HuangYZ20.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@inproceedings{10.1145/93597.98741,
+author = {Beckmann, Norbert and Kriegel, Hans-Peter and Schneider, Ralf and Seeger, Bernhard},
+title = {The R*-Tree: An Efficient and Robust Access Method for Points and Rectangles},
+year = {1990},
+isbn = {0897913655},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/93597.98741},
+doi = {10.1145/93597.98741},
+abstract = {The R-tree, one of the most popular access methods for rectangles, is based on the heuristic optimization of the area of the enclosing rectangle in each inner node. By running numerous experiments in a standardized testbed under highly varying data, queries and operations, we were able to design the R*-tree which incorporates a combined optimization of area, margin and overlap of each enclosing rectangle in the directory. Using our standardized testbed in an exhaustive performance comparison, it turned out that the R*-tree clearly outperforms the existing R-tree variants. Guttman's linear and quadratic R-tree and Greene's variant of the R-tree. This superiority of the R*-tree holds for different types of queries and operations, such as map overlay, for both rectangles and multidimensional points in all experiments. From a practical point of view the R*-tree is very attractive because of the following two reasons 1 it efficiently supports point and spatial data at the same time and 2 its implementation cost is only slightly higher than that of other R-trees.},
+booktitle = {Proceedings of the 1990 ACM SIGMOD International Conference on Management of Data},
+pages = {322–331},
+numpages = {10},
+location = {Atlantic City, New Jersey, USA},
+series = {SIGMOD '90}
+}
+
+@article{R*-Tree,
+author = {Beckmann, Norbert and Kriegel, Hans-Peter and Schneider, Ralf and Seeger, Bernhard},
+title = {The R*-Tree: An Efficient and Robust Access Method for Points and Rectangles},
+year = {1990},
+issue_date = {Jun. 1990},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {19},
+number = {2},
+issn = {0163-5808},
+url = {https://doi.org/10.1145/93605.98741},
+doi = {10.1145/93605.98741},
+abstract = {The R-tree, one of the most popular access methods for rectangles, is based on the heuristic optimization of the area of the enclosing rectangle in each inner node. By running numerous experiments in a standardized testbed under highly varying data, queries and operations, we were able to design the R*-tree which incorporates a combined optimization of area, margin and overlap of each enclosing rectangle in the directory. Using our standardized testbed in an exhaustive performance comparison, it turned out that the R*-tree clearly outperforms the existing R-tree variants. Guttman's linear and quadratic R-tree and Greene's variant of the R-tree. This superiority of the R*-tree holds for different types of queries and operations, such as map overlay, for both rectangles and multidimensional points in all experiments. From a practical point of view the R*-tree is very attractive because of the following two reasons 1 it efficiently supports point and spatial data at the same time and 2 its implementation cost is only slightly higher than that of other R-trees.},
+journal = {SIGMOD Rec.},
+month = {may},
+pages = {322–331},
+numpages = {10}
+}
+
+@article{10.1145/971697.602266,
+author = {Guttman, Antonin},
+title = {R-Trees: A Dynamic Index Structure for Spatial Searching},
+year = {1984},
+issue_date = {June 1984},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {14},
+number = {2},
+issn = {0163-5808},
+url = {https://doi.org/10.1145/971697.602266},
+doi = {10.1145/971697.602266},
+abstract = {In order to handle spatial data efficiently, as required in computer aided design and geo-data applications, a database system needs an index mechanism that will help it retrieve data items quickly according to their spatial locations However, traditional indexing methods are not well suited to data objects of non-zero size located m multi-dimensional spaces In this paper we describe a dynamic index structure called an R-tree which meets this need, and give algorithms for searching and updating it. We present the results of a series of tests which indicate that the structure performs well, and conclude that it is useful for current database systems in spatial applications},
+journal = {SIGMOD Rec.},
+month = {jun},
+pages = {47–57},
+numpages = {11}
+}
+
+@inproceedings{R-Tree,
+author = {Guttman, Antonin},
+title = {R-Trees: A Dynamic Index Structure for Spatial Searching},
+year = {1984},
+isbn = {0897911288},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/602259.602266},
+doi = {10.1145/602259.602266},
+abstract = {In order to handle spatial data efficiently, as required in computer aided design and geo-data applications, a database system needs an index mechanism that will help it retrieve data items quickly according to their spatial locations However, traditional indexing methods are not well suited to data objects of non-zero size located m multi-dimensional spaces In this paper we describe a dynamic index structure called an R-tree which meets this need, and give algorithms for searching and updating it. We present the results of a series of tests which indicate that the structure performs well, and conclude that it is useful for current database systems in spatial applications},
+booktitle = {Proceedings of the 1984 ACM SIGMOD International Conference on Management of Data},
+pages = {47–57},
+numpages = {11},
+location = {Boston, Massachusetts},
+series = {SIGMOD '84}
+}
+
+@inproceedings{DBLP:conf/sigmod/RuanGWW21,
+  author       = {Boyu Ruan and
+                  Junhao Gan and
+                  Hao Wu and
+                  Anthony Wirth},
+  editor       = {Guoliang Li and
+                  Zhanhuai Li and
+                  Stratos Idreos and
+                  Divesh Srivastava},
+  title        = {Dynamic Structural Clustering on Graphs},
+  booktitle    = {{SIGMOD} '21: International Conference on Management of Data, Virtual
+                  Event, China, June 20-25, 2021},
+  pages        = {1491--1503},
+  publisher    = {{ACM}},
+  year         = {2021},
+  url          = {https://doi.org/10.1145/3448016.3452828},
+  doi          = {10.1145/3448016.3452828},
+  timestamp    = {Sun, 12 Feb 2023 18:48:33 +0100},
+  biburl       = {https://dblp.org/rec/conf/sigmod/RuanGWW21.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@Article{HFTData,
+  author={Viktor Manahov},
+  title={{High‐frequency trading order cancellations and market quality: Is stricter regulation the answer?}},
+  journal={International Journal of Finance \& Economics},
+  year=2021,
+  volume={26},
+  number={4},
+  pages={5385-5407},
+  month={October},
+  keywords={},
+  doi={10.1002/ijfe.2071},
+  abstract={High‐frequency traders (HFTs) frequently submit, cancel and resubmit trading orders in an attempt to stay in front of the queue. This study shows that HFTs cancel a large number of limit orders within 50 ms in order to create arbitrage opportunities in the Australian Stock Exchange (ASX). We find that HFTs generate substantial profits after transaction costs and are capable of extending their strong profitability generating record in the future. Our empirical results indicate that institutional investors lacking speed are more likely to experience higher execution costs. We propose the introduction of batch auctions, one per 50 ms of trading, to impose a queuing risk for HFTs leading to positive market quality effects.},
+  url={https://ideas.repec.org/a/wly/ijfiec/v26y2021i4p5385-5407.html}
 }

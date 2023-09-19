@@ -1,3 +1,35 @@
 \subsection{QAT Algorithm}
 
-So far we have only shown that the \textit{constrained} RTS problem is polylogarithmic in $\Tilde{O}(n+m)$. That is, we can achieve subquadratic run time when we restrict the problem so that $d=1$, all queries are preregistered, and $w(e_i) = 1$ for all stream elements $e_i$. For the remainder of this section, we show how to slightly modify our existing algorithm so that we can solve the more general RTS problem without these assumptions, whilst preserving the complexity of $\Tilde{O}(n+m)$.
+So far we have only shown that the \textit{constrained} RTS problem is polylogarithmic in $\Tilde{O}(n+m)$, and consumes $O(m_{alive})$ space. That is, we can achieve subquadratic run time when we restrict the problem so that $d=1$, all queries are preregistered, and $w(e_i) = 1$ for all stream elements $e_i$. For the remainder of this section, we show how to modify the existing algorithm so that we can solve the more general RTS problem without these assumptions, whilst preserving the computational complexity of $\Tilde{O}(n+m)$, and linear space consumption in the size of alive queries.
+
+\subsubsection*{Supporting Dynamic Query Insertion}
+As we have seen, the exisiting DT algorithm can handle Query deletion; by simply ignoring the corresponding Distributed Tracking instance, and then rebuilding the data structure whenever $m_{alive} < m$. To remove the prior assumption of all queries being pre-registered, we leverage the algorithmic technique of \textit{logarithmic rebuilding} \cite{BENTLEY}. \\
+\\
+Logarithmic building is a well studied technique to convert an existing static data structure, into one that is \textit{semi-dynamic} in sense that the data structure can support \texttt{insert} operations. Apply the technique in the context of RTS - we partition the set of queries into disjoint subsets $S_0, \dots S_{h-1}$ where $h = \lfloor \log m\rfloor+1$, where each $S_i$ is either empty or contains $2^i$ queries. Finally, an instance of the DT Algorithm \ref{Algorithm 3} runs on each of $S_i$, in a Tree that we label as $T_i$. \\
+\\
+To support insertion of a new query $q$, we determine the smallest $i$ such that $S_i = \emptyset$, and then union all the queries of $S_0, \dots, S_{i-1}$ together with $q$ into a new instance of the algorithm on $S_i$. Processing a stream element therefore decomposes into running a root-leaf path of each incoming stream element across the possible $O(\log h)$ trees. This process thus preserves the correctness of the prior algorithm, though now fully supports insertion and deletions. 
+
+\begin{lemma}
+    The fully dynamic structure supports insertions and query processing in $O(\log^2 m)$ time.
+\end{lemma}
+\begin{proof}
+    Element processing now involves tracing $h = O(\log m)$ root-leaf paths; of which the largest tree has height $O(\log m)$, resulting in a total cost of $O(\log^2 m)$ time to process a single stream element. \\
+    \\
+    Analysing insertions is slightly more difficult, as the cost can very between insertions that trigger small restructures, to those that result in a reconstruction on a index of sizable partition.
+    \todo{Include the amortisation proof}
+\end{proof}
+
+\subsubsection*{Supporting $d>1$ Queries} 
+
+As we initially defined, an RTS query specifies an axis-parallel query over a range $R = [x_1, y_1] \times \cdots \times [x_d, y_d]$. For an example as to how such a query could arise in practice, one can consider a stock tracker who may wish to register an RTS query of the form: 
+
+\begin{center}
+    \textit{``Alert me when $5,000$ shares of \texttt{AAPL} are traded between prices [300,305] \textbf{and} the Nasdaq trades between [3000,3050]''}
+\end{center}
+As it turns out, supporting higher dimensional queries is relatively straight forward, and can be done so through leveraging the ideas of \textit{Range Trees} \cite{RTrees, DeBerg}.
+
+
+\subsubsection*{Supporting Weighted Queries}
+The final component to generalise is the support of queries on data streams where $w(e_t) \in \mathbb{N}_{\geq1}$
+
+

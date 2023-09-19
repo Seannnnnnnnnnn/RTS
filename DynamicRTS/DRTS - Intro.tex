@@ -1,4 +1,4 @@
-\section{Variable RTS Queries}
+\section{Dynamic RTS Queries}
 
 Previous research has only considered RTS queries $q$ of the form $q = (R, \tau)$ where $R$ is a \textit{fixed} subset of the real number line. For the remainder of this thesis, we consider a new type of RTS query, where the endpoint(s) of $R$ are able to vary over the lifetime of a query. For an immediate motivation to the practical importance of such queries, we return our attention to a hypothetical stock trader who pays attention to price sensitive intervals. Recall in this scenario that the data stream corresponds to market information, specifically where $v(e)$ relates to trade price, and $w(e)$ relates to volume. Suppose they now wish to register an RTS query of the form: 
 \begin{center}
@@ -8,9 +8,31 @@ Where VWAP is calcualated by
 \begin{align}
     \text{VWAP} = \frac{\sum_{i=1}^{n} w(e_i)v(e_i)}{\sum_{i=1}^{n}w(e_i)}
 \end{align}
-Such an RTS query range would therefore be $R = [11/10\text{VWAP}, \infty)$, as the left endpoint of the query changes with each coming stream element $e$, current RTS algorithms cannot support such queries. This leads us to consider a new type of query defined as follows:
+Such an RTS query range would therefore be $R = [1.1\times\text{VWAP}, \infty)$, as the left endpoint of the query changes with each coming stream element $e$, current RTS algorithms cannot support such queries. This leads us to consider a new type of query defined as follows:
 
-\begin{definition}[Variable RTS Query]
-    A variable RTS query $q$ is specified by a tuple $q = (R,\tau)$ where $\tau\in \mathbb{N}$ and $R = [f_1, f_2)$ where $f_1, f_2 : \{e\}\rightarrow\mathbb{R}$ satisfying $f_1 \leq f_2$
+\begin{definition}[Dynamic RTS Query] A dynamic RTS (\textit{d-RTS}) query specifies a tuple $(R_q, \tau_q)$ where $\tau_q \in \mathbb{N}$
+    is a threshold, and $R_{q(t)} =[f_1(t), f_2(t)]$ is a variable subset of $R$, given by functions $f: t\rightarrow\mathbb{R}$ satisfying $f_1 < f_2$, and $t$ is the index of the data stream.
 \end{definition}
-As before, we consider a growing data stream of $n$ elements, on which we wish to process $m$ variable RTS queries. Of course, using a brute force approach as before still demands $O(nm)$ time, though we wish to prove that such queries can be supported in subquadratic time; ideally $\Tilde{O}(n+m)$
+
+As it turns out, designing systems to manage \textit{d-RTS} queries can become rapidly complex depending on the behaviour of the functions $f$. As illustrated below, even in simple cases it appears difficult to escape a quadratic runtime of $O(nm)$ where $n$ is the size of the data stream, and $m$ the number of \textit{d-RTS} query
+
+\subsubsection*{Case 1: ``Equal Step''}
+Perhaps the most simple case of a \textit{d-RTS} query is the equal step case, where for each incoming stream element $e_t$; the end point of each query $R_q$ is shifted by a fixed step of $\Delta\in\mathbb{R}^d$. That is for each incoming stream element $e_t$ where $t = 1,\dots,$ the interval is updated according to: 
+$$R_{q(t)} \leftarrow R_{q(t-1)} + \Delta$$
+Which can be reformulated as 
+\begin{align}
+    R_{q(t)} \leftarrow R_{q(0)} + \Delta t
+\end{align}
+The expression in $(1)$ suggests a technique for solving the equal step case, which we call \textit{value shifting}. For the moment, suppose that all queries are registered prior to the commencement of the data stream. We then apply the existing DT algorithm on all queries registered at $t=0$, and then for each incoming stream element at $t\geq1$, we update it's corresponding value according to 
+\begin{align}
+    v(e_t) \leftarrow v(e_t) - \Delta t
+\end{align}
+it is clear that $v(e_t) \in R_{q(t)} \iff v(e_t)-\Delta t \in R_{q(0)}$. Assuming that $v(e_t)\in\mathbb{R}^d$, performing the update step in $(2)$ requires $O(d)$ time, and thus results in $O(d\log^{d+1}m)$ time to process a single stream element, and thus $O(nd\log^{d+1}m)$ to process a stream of $n$ elements. \\
+\\
+As argued above, this adds an additional $O(d)$ factor to the runtime of the algorithms query processing component; which can be negligible for the typically small values $d$. The runtime can quickly explode however when we allow for additional queries to be registered over the lifetime of the algorithm. To see why, the \textit{shifting} rule for a \textit{d-RTS} query registered at time $t^\prime$ is
+\begin{align}
+    v(e_t) \leftarrow v(e_t) - \Delta(t - t^\prime)
+\end{align}
+Of course, on a root-to-leaf path, a stream element may cross many many queries with various different registration times; that is, we could have $k$ different values of $t^\prime$ in $(3)$, and thus require $k$ different root-leaf path traces to ensure that all relevant nodes are visited. This results in $O(kd\log^{d+1}m)$ runtime to trace root-leaf paths which in the case where $k=m$ results in $O(ndm\log^{d+1}m)$ time to process $n$ stream elements.\\
+\\
+Another option is to group queries based on the timestamp of their registration, and then run instances of the DT algorithm on each group. In the most pessimistic case, we can consider a user registering each query at differing timestamps; this results in $O(m)$ groups, and $O(m)$ \textit{shift calculations} in $(3)$. Tracing a root-leaf path now involves a very shallow tree, in particular of height 1, though ultimately results in $O(ndm)$ time to process $n$ stream elements.

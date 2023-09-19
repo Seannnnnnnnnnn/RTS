@@ -2,9 +2,7 @@
 
 Also known as the \textit{logarithmic method}, logarithmic rebuilding is a general technique to convert from a \textit{static} data structure to one that is \textit{partially dynamic}; that is, convert a data structure from one that supports neither insertions or deletions to one that supports \textit{at least} insertions. \\
 \\
-The method is due to Bentley and Saxe \cite{BENTLEY1980301} and works as follows: suppose that we have a static data structure $T$ for which we want to build on a set of elements $S$. \\
-\\
-Let $n = |S|$ be the number of elements inserted into the data structure, at all times $S$ is partitioned into $h = \lfloor \log n\rfloor+1$ subsets $S_0, \dots, S_{h-1}$ where 
+The method is due to Bentley and Saxe \cite{BENTLEY} and works as follows: suppose that we have a static data structure $T$ for which we want to build on a set of elements $S$.  Let $n = |S|$ be the number of elements inserted into the data structure, at all times $S$ is partitioned into $h = \lfloor \log n\rfloor+1$ subsets $S_0, \dots, S_{h-1}$ where 
 $$S_j \cap S_i = \emptyset \quad \quad  and \quad \quad \bigcup_{i=0}^{h-1}S_i = S$$ 
 Moreover, we enforce that each subset satisfies one of $|S_i| = 0$ or $|S_i| = 2^i$ and maintains a copy of the data structure $T_i$ on the elements of $S_i$. We now consider the following algorithm(s) for maintaining insertions and conducting queries on $S$. 
 
