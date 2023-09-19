@@ -37,11 +37,13 @@
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
 
 
 % Title page
 
 \begin{document}
+\hspace{95mm}\domark{Notes Prepared for Friday 22.09.2023}
 
 \section*{Dynamic RTS Queries}
 
@@ -49,7 +51,7 @@
     is a threshold, and $R_{q(t)} =[f_1(t), f_2(t)]$ is a variable subset of $R$, given by functions $f: t\rightarrow\mathbb{R}$ satisfying $f_1 < f_2$, and $t$ is the index of the data stream.
 \end{definition}
 
-As it turns out, designing systems to manage \textit{d-RTS} queries can become rapidly complex depending on the behaviour of the functions $f$. As illustrated below, even in simple cases it appears difficult to escape a quadratic runtime of $O(nm)$ where $n$ is the size of the data stream, and $m$ the number of \textit{d-RTS} query
+As it turns out, designing systems to manage \textit{d-RTS} queries can become rapidly complex depending on the behaviour of the functions $f$. As illustrated below, even in simple cases it appears difficult to escape a quadratic runtime of $O(nm)$ where $n$ is the size of the data stream, and $m$ the number of \textit{d-RTS} queries.
 
 \subsubsection*{Case 1: ``Equal Step''}
 Perhaps the most simple case of a \textit{d-RTS} query is the equal step case, where for each incoming stream element $e_t$; the end point of each query $R_q$ is shifted by a fixed step of $\Delta\in\mathbb{R}^d$. That is for each incoming stream element $e_t$ where $t = 1,\dots,$ the interval is updated according to: 
@@ -68,13 +70,24 @@ As argued above, this adds an additional $O(d)$ factor to the runtime of the alg
 \begin{align}
     v(e_t) \leftarrow v(e_t) - \Delta(t - t^\prime)
 \end{align}
-Of course, on a root-to-leaf path, a stream element may cross many many queries with various different registration times; that is, we could have $k$ different values of $t^\prime$ in $(3)$, and thus require $k$ different root-leaf path traces to ensure that all relevant nodes are visited. This results in $O(kd\log^{d+1}m)$ runtime to trace root-leaf paths which in the case where $k=m$ results in $O(ndm\log^{d+1}m)$ time to process $n$ stream elements.\\
+Of course, on a root-to-leaf path, a stream element may cross many queries with various different registration times; that is, we could have $k$ different values of $t^\prime$ in $(3)$, and thus require $k$ different root-leaf path traces to ensure that all relevant nodes are visited. This results in $O(kd\log^{d+1}m)$ runtime to trace root-leaf paths which in the case where $k=m$ results in $O(ndm\log^{d+1}m)$ time to process $n$ stream elements. Finally, our analysis has so far neglected the need to consider the cost of logarithmic rebuilding, and additional space consumption that would be required to store counters of the requisite time stamps.\\
 \\
 Another option is to group queries based on the timestamp of their registration, and then run instances of the DT algorithm on each group. In the most pessimistic case, we can consider a user registering each query at differing timestamps; this results in $O(m)$ groups, and $O(m)$ \textit{shift calculations} in $(3)$. Tracing a root-leaf path now involves a very shallow tree, in particular of height 1, though ultimately results in $O(ndm)$ time to process $n$ stream elements.
 
 \subsubsection*{Case 2: Logarithmic Groups}
 The computational bottleneck that results in quadratic runtime in case 1 lies in $k$, the number of different timestamps $t$ where RTS queries are registered. As we have argued, in seems in the case where $k = O(m)$, solving $m$ RTS queries consumes at least $O(nm)$ time. \\
 \\
-In any case where $k = \Tilde{O}(1)$ however, we can solve the \textit{d-RTS} problem as described above in $\Tilde{O}(n+m)$ time using the existing RTS problem.
+In any case where $k = \Tilde{O}(1)$ however, we can solve the \textit{d-RTS} problem as described above in $\Tilde{O}(n+m)$ time using existing RTS algorithm problem.
+
+
+\begin{example}[Binary Intervals] 
+\end{example}
+let $Q$ be the query set, and suppose instead we approximate each query such that the endpoints of its interval is shifted to the closest power of $2$ and let $R = \cup_{q\in Q}R_q$. To momentarily simplify the analysis, suppose that the leftmost endpoint of $R$ is 0, and the right most is $N$, this implies $h = \lfloor \log_2 N \rfloor$ powers of 2 lie in the interval $[0,N]$. The strategy of rounding to the nearest power of 2 results in the following number of possible endpoint pairs
+\begin{align*}
+    \frac{1}{2} {h\choose 2} &= \frac{h^2-h}{4} \\
+    &= \frac{\lfloor\log^2_2 N\rfloor - \lfloor\log N\rfloor}{4} \\
+    &= O(\log N)
+\end{align*}
+For a quick explanation as to how we arrive at this, there are ${h\choose2}$ possible pairs of the $h$ endpoints, and only half of which are valid, with the left endpoint less than the right.
 
 \end{document}
