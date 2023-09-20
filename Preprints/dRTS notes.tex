@@ -38,6 +38,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{definition}{Definition}
 \newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
 
 
 % Title page
@@ -47,7 +48,7 @@
 
 \section*{Dynamic RTS Queries}
 
-\begin{definition}[Dynamic RTS Query] A dynamic RTS (\textit{d-RTS}) query specifies a tuple $(R_q(t), \tau_q)$ where $\tau_q \in \mathbb{N}$
+\begin{definition}[Dynamic RTS Query] A dynamic RTS (\textit{d-RTS}) query specifies a tuple $(R_{q(t)}, \tau_q)$ where $\tau_q \in \mathbb{N}$
     is a threshold, and $R_{q(t)} =[f_1(t), f_2(t)]$ is a variable subset of $R$, given by functions $f: t\rightarrow\mathbb{R}$ satisfying $f_1 < f_2$, and $t$ is the index of the data stream.
 \end{definition}
 
@@ -77,17 +78,54 @@ Another option is to group queries based on the timestamp of their registration,
 \subsubsection*{Case 2: Logarithmic Groups}
 The computational bottleneck that results in quadratic runtime in case 1 lies in $k$, the number of different timestamps $t$ where RTS queries are registered. As we have argued, in seems in the case where $k = O(m)$, solving $m$ RTS queries consumes at least $O(nm)$ time. \\
 \\
-In any case where $k = \Tilde{O}(1)$ however, we can solve the \textit{d-RTS} problem as described above in $\Tilde{O}(n+m)$ time using existing RTS algorithm problem.
+In any case where $k = \Tilde{O}(1)$ however, we can solve the \textit{d-RTS} problem as described above in $\Tilde{O}(n+m)$ time using existing RTS algorithm problem. Another case to consider though, is if we can approximate the intervals of the $m$ RTS queries, so that they can be effectively grouped together. If we can sufficiently group the $m$ queries, particularly so that $m$ reduces to a logarithmic factor it appears then we are able to solve equal step d-RTS queries in $\Tilde{O}(n+m)$ time, as exemplified below.
 
 
-\begin{example}[Binary Intervals] 
+\begin{example}[Binary Intervals, $d=1$] 
 \end{example}
 let $Q$ be the query set, and suppose instead we approximate each query such that the endpoints of its interval is shifted to the closest power of $2$ and let $R = \cup_{q\in Q}R_q$. To momentarily simplify the analysis, suppose that the leftmost endpoint of $R$ is 0, and the right most is $N$, this implies $h = \lfloor \log_2 N \rfloor$ powers of 2 lie in the interval $[0,N]$. The strategy of rounding to the nearest power of 2 results in the following number of possible endpoint pairs
 \begin{align*}
     \frac{1}{2} {h\choose 2} &= \frac{h^2-h}{4} \\
-    &= \frac{\lfloor\log^2_2 N\rfloor - \lfloor\log N\rfloor}{4} \\
+    &= \frac{\lfloor\log_2 N\rfloor^2 - \lfloor\log N\rfloor}{4} \\
     &= O(\log N)
 \end{align*}
-For a quick explanation as to how we arrive at this, there are ${h\choose2}$ possible pairs of the $h$ endpoints, and only half of which are valid, with the left endpoint less than the right.
+For a quick explanation as to how we arrive at this, there are ${h\choose2}$ possible pairs of the $h$ endpoints, and only half of which are valid, with the left endpoint less than the right. \\
+\\
+The key observation here is that for a naive approach, this effectively reduces the number of queries whose interval we need to check from $\Omega(m)$ to $O(\log N)$, as now the endpoint of all intervals are now restricted to a power of 2. The challenge is now to manage query maturation as we process incoming stream elements. \\
+\\
+\textbf{One Time Registration Case}: Let's first simplify analysis and assume that all queries are preregistered. Recall that all queries now have their associated ranges set to one of $I_1, \dots, I_h$. Let $Q_j$ be the set of all thresholds of d-RTS queries with interval approximated to $I_j$, then $Q_j$ contains a set of associated d-RTS thresholds $\tau_1,\dots, \tau_i$. To solve the d-RTS problem, we maintain a sorted list of $\tau_1,\dots,\tau_i$ and process stream elements as follows.  \\
+\\
+For an incoming stream element $e_t$, we apply value shifting as per $(1)$, then check if $v(e_t) \in I_1, \dots, I_h$. For any interval satisfying $v(e_t)\in  I_j$, we identify the minimum threshold in $Q_j$ which we denote by $\tau_j^*$ and then updated according to: 
+\begin{equation}
+    \tau_j^* \leftarrow \tau_j^* - w(e_t)
+\end{equation}
+If this results in $\tau_j^* < 0$, then it is clear the associated RTS query has matured, and we remove $\tau^*_j$ from its sorted list in $O(1)$. Let $\tau^\prime_j$ denote the new minimum threshold in the list, to account for previous threshold updates, we now perform
+\begin{equation}
+    \tau_j^\prime \leftarrow \tau_J^\prime - \tau_j^*
+\end{equation}
+if this results in $\tau_j^\prime <0$, we repeat from calculation $(4)$, otherwise we are done. As $v(e_t)$ can only stab at most one of the $h$ intervals, we have now processed the stream element. \\
+\\
+\textit{Analysis}. The total run time of the above algorithm is as follows: preprocessing the intervals into approximate ranges $I_1, \dots, I_h$ requires $O(m)$\footnote{this is a little hand-wavey, but can be accomplished with a few passes over the $m$ queries}. We then must sort $Q_j$ for $j=1,\dots,h$. As the total number of thresholds across all $Q_j$ is $m$, constructing all the sorted lists requires $O(m\log m)$ time. To process an element $e_t$, the algorithm performs the shifting rule described in $(2)$, then checks if $v(e_t)$ stabs one of the $h$ intervals. In the case that $v(e_t)\in I_j$, we perform the update step in $(4)$, and if necessary $(5)$ with repetitions. \\
+\\
+It is important to observe, that in the one time registration case, calculation $(5)$ can only be performed a total of $m$ times over the life of the algorithm. For a stream of length $n$ therefore, the total run time for element processing is therefore $O(nh + m) = O(n\log N + m)$ combined with the cost to preprocess the queries, this brings the total runtime to $O(m\log m + n \log N) = \tilde{O}(n+m)$ \\
+\\
+\textbf{Dynamic Registration Case}: With a bit of thought, extending to this case is quite trivial. As before, approximate the queries associated with the intervals in $O(\log N)$ groups in $O(m\log m)$ time. When a new query $q = (R_{q(t)}, \tau_q)$ is registered, simply determine the new endpoints of $R_{q(t)}$, if this results in one of the already existing intervals $I_1, \dots, I_h$; simply insert $\tau_q$ into the sorted list associated with the interval in $O(m_{alive})$\footnote{assuming that the sorted lists are some array structure} time. \\
+\\
+\textit{Analysis.} This is argued exactly as before, though inserting a new element requires an additional $O(m_{alive})$ overhead to the runtime. 
+
+\subsubsection*{Closing Remarks \& Next Steps}
+In these notes, I give a definition of the dynamic RTS query, and explore the simplest type of d-RTS query, called the equal step case, wherein at each time step, endpoints are incremented according to some fixed value $\Delta \in\mathbb{R}$. Finally we propose a technique \textit{value shifting} for handling this case of d-RTS queries, and make the following arguments: 
+\begin{enumerate}
+    \item The DT algorithm studied so far can reduce to quadratic runtime of $O(ndm\log^{d+1}m)$ to process a stream of $n$ elements, which occurs when the $m$ queries are registered at different time stamps. In general for $k$ different time stamp registrations, runtime will be $O(ndk\log^{d+1}m)$, so it appears $k = \Tilde{O}(1)$ is required to remain subquadratic.
+    \item Another alternative is to approximate the length of the intervals, so that a number of RTS queries can effectively be grouped together. We then show a relatively straightforward algorithm for handling $d=1$ queries which we argue takes $\Tilde{O}(n+m)$ runtime.
+\end{enumerate}
+Some thoughts for moving forward: 
+\begin{enumerate}
+    \item Do we certainly require quadratic runtime for the general case? or is there some trick that can be applied to circumvent this. 
+    \item Can we easily extend the algorithm to support $d\geq1$ queries? 
+    \item Is this interesting? The first of the two points above doesn't seem to bode well for the study of d-RTS queries, as quadratic runtime would suggest one to just use a naive approach. 
+    \item If the answer to 3. is no, what else could we look at? Fortunately we have plenty of time to explore more problems! 
+\end{enumerate}
+
 
 \end{document}
