@@ -69,7 +69,7 @@ it is clear that $v(e_t) \in R_{q(t)} \iff v(e_t)-\Delta t \in R_{q(0)}$. Assumi
 \\
 As argued above, this adds an additional $O(d)$ factor to the runtime of the algorithms query processing component; which can be negligible for the typically small values $d$. The runtime can quickly explode however when we allow for additional queries to be registered over the lifetime of the algorithm. To see why, the \textit{shifting} rule for a \textit{d-RTS} query registered at time $t^\prime$ is
 \begin{align}
-    v(e_t) \leftarrow v(e_t) - \Delta(t - t^\prime)
+    v(e_t) \leftarrow v(e_t) - \Delta t^\prime
 \end{align}
 Of course, on a root-to-leaf path, a stream element may cross many queries with various different registration times; that is, we could have $k$ different values of $t^\prime$ in $(3)$, and thus require $k$ different root-leaf path traces to ensure that all relevant nodes are visited. This results in $O(kd\log^{d+1}m)$ runtime to trace root-leaf paths which in the case where $k=m$ results in $O(ndm\log^{d+1}m)$ time to process $n$ stream elements. Finally, our analysis has so far neglected the need to consider the cost of logarithmic rebuilding, and additional space consumption that would be required to store counters of the requisite time stamps.\\
 \\
@@ -87,11 +87,11 @@ let $Q$ be the query set, and suppose instead we approximate each query such tha
 \begin{align*}
     \frac{1}{2} {h\choose 2} &= \frac{h^2-h}{4} \\
     &= \frac{\lfloor\log_2 N\rfloor^2 - \lfloor\log N\rfloor}{4} \\
-    &= O(\log N)
+    &= O(\log^2 N)
 \end{align*}
 For a quick explanation as to how we arrive at this, there are ${h\choose2}$ possible pairs of the $h$ endpoints, and only half of which are valid, with the left endpoint less than the right. \\
 \\
-The key observation here is that for a naive approach, this effectively reduces the number of queries whose interval we need to check from $\Omega(m)$ to $O(\log N)$, as now the endpoint of all intervals are now restricted to a power of 2. The challenge is now to manage query maturation as we process incoming stream elements. \\
+The key observation here is that for a naive approach, this effectively reduces the number of queries whose interval we need to check from $\Omega(m)$ to $O(\log^2 N)$, as now the endpoint of all intervals are now restricted to a power of 2. The challenge is now to manage query maturation as we process incoming stream elements. \\
 \\
 \textbf{One Time Registration Case}: Let's first simplify analysis and assume that all queries are preregistered. Recall that all queries now have their associated ranges set to one of $I_1, \dots, I_h$. Let $Q_j$ be the set of all thresholds of d-RTS queries with interval approximated to $I_j$, then $Q_j$ contains a set of associated d-RTS thresholds $\tau_1,\dots, \tau_i$. To solve the d-RTS problem, we maintain a sorted list of $\tau_1,\dots,\tau_i$ and process stream elements as follows.  \\
 \\
