@@ -1,0 +1,142 @@
+\documentclass{article}
+
+% PACKAGES  
+\usepackage[utf8]{inputenc}
+\usepackage{amsbsy}
+\usepackage{fixltx2e}
+\usepackage{amsfonts}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{color} 
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+\usepackage{appendix}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{minted}
+\def\code#1{\texttt{#1}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2.0cm]{geometry}
+
+\usepackage{pgfgantt}
+
+% Theorem environments
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+
+% Title page
+
+\begin{document}
+\hspace{95mm}\domark{Notes Prepared for Friday 3.10.2023}
+
+\section*{Negative RTS queries}
+
+
+Another important extension to current research is to consider the case where stream weights can be negative integers. For a quick illustration as to why such an extension could be of practical importance, High Frequency Trading firms (HFTs) often consider RTS queries over the stream of \textit{limit order book insertions} \cite{HFTData}, which include \textit{matched} trades, \textit{limit} orders (orders to buy / sell at a specified future price) and \textit{cancellation orders}. Whilst matched and limit orders can be modelled in our current scenario, the cancellation orders would require an RTS algorithm to account for negative weights. With cancellation orders accounting for 96\% of order book transactions \citep{HFTData}, being able to model such scenarios is likely to be of interest to the HFT community. \\
+\\
+From a technical perspective, as all current state of the art solutions involve reductions to distributed tracking, this would require an examination of the algorithms framework. Fortunately, prior research provides \textit{off-the-shelf} solutions for distributed threshold monitoring that work with negative updates \cite{10.1145/1142473.1142507}. \\
+\\
+We cover the central ideas of the paper \textit{Communication-Efficient Distributed Monitoring of thresholded counts} \cite{10.1145/1142473.1142507} which as noted by the authors in section 5 of their paper, provides solutions to the case of negative updates. \\
+\\
+As before, the paper modles the scenario of a central coordinator $q$ which conducts pairwise 2-way communication with remote sites $s_1, \dots, s_h$. Each remote site $s_i$ observers a data stream $e_1, \dots, e_n$. Each remote site maintains a local estimate of it's stream
+$$N_i(t) = \sum_{t^\prime < t} w(e_{t^\prime})$$
+Given a threshold $\tau$ the cooridinator is interested in whenever the global count $N(t)$ over all streams exceeds $\tau$ where
+$$N(t) = \sum_{i=1}^{h} N_i(t)$$
+In particular, the paper provides a solution to this problem up to a $\delta$-\textit{efficient} threshold defined as follows 
+
+\begin{definition}[$\delta$-efficient threshold count]
+Given a threshold $\tau$ nand error guranatee $\delta$ the $\delta$-efficient thresholded count, $\hat{N}$ satisfies the following: 
+\begin{enumerate}
+    \item $0\leq \hat{N}\leq \tau$ whenever $N < \tau$
+    \item $N(1-\delta) < \hat{N} < N$ whenever $N \geq \tau$
+\end{enumerate}
+\end{definition}
+It is important to note that for our purposes for the RTS problem, we are particularly interested in the cases where $\delta\rightarrow0$, so we can determine, as accurately as possible, the precise moment that the threshold has been reached and the RTS query matured.
+
+\subsection*{Algorithm Overview}
+Similar to the distributed tracking algorithms we have seen before, the algorithm proposed in \cite{10.1145/1142473.1142507} sets local threhsolds at each site. Unlike the previous use of \textit{slack values}, at each site $S_i$ thresholds $t_{i,j}$ for $j=1,\dots$ are setso that the local count $\hat{N}_i(t)$ always satisfies
+\begin{align}
+    t_{i,f(i)} \leq \hat{N} < t_{i,f(i)+1}
+\end{align}
+If condition $(1)$ is violated, updates are sent to the coordinator and new thresholds are generated. Note that similiar to previous Distirbuted Tracking algorithms, the remote site ddoes note send any updates to the coordinator until the the actual local count lies outside these bounds. This means that the maximum error of $\hat{N}_i(t)$ is given by $t_{i,f(i)+1} - t_{i,f(i)}$. The paper considers two categories for setting such thresholds 
+\begin{enumerate}
+    \item \textbf{Static Thresholding}: each remote site is assigned a predetermined set of thresholds that do not change over the life of the algorithm . It simply tracks between which pair of thresholds its count currently lies, and informs the coordinator when this
+changes
+    \item \textbf{Adaptive Thresholding}: when old thresholds are violated, new thresholds at the remote sites are chosen by the central site according to the observed conditions, to dynamically reduce the communication overhead
+\end{enumerate}
+As noted by the authors While the adaptive thresholding methods can be expected to perform better than the static methods, the static methods are desirable when the capabilities of the remote site are limited due to the computational overhead that they add. For now, we only consider the three schemes proposed to set static local thresholds. In the communication cost analysis of each algorithm, we assume that updates are always positive.
+
+\subsubsection*{Uniform Threshold}
+The simplest solution is to set hte threshold levels at each remote site as $t_j = \frac{j\delta \tau}{h}$. To see that considition \textit{2} is satisfied when $N\geq \tau$ the total error is given by 
+\begin{align*}
+    \hat{N} &\leq \sum_{i=1}^{h}t_{i,f(i)+1} - t_{i,f(i)} \\
+    &= \sum_{i=1}^{h}\frac{\delta\tau}{h} \\ 
+    &= \delta\tau \leq \delta N
+\end{align*}
+For a current global count of $N$, a message is sent, in the worst case, with every increase of $\delta \tau / h$ increase in local counts. This means, the total number of messages cannot exceed $\lceil N / (\delta \tau / h) \rceil = O(\frac{hN}{\delta\tau})$
+
+
+\subsubsection*{Proportional Threshold}
+
+We can improve communication costs by setting a threshold that is proportional to the local counts. The following scheme is to use: 
+
+$$t_j = (1+\delta)t_{j-1} \hspace{5mm} t_0 = 0, t_1 =1 $$
+Recursively, this gives $t_{f(j)} = (1+\delta)^{f(j)-1}$ To see that this provides a $\delta$-efficient threshold count note that the global count error is bounded by 
+\begin{align*}
+    \hat{N} &\leq \sum_{i=1}^{h}N_i \\
+            &\leq \sum_{i=1}^{h} t_{f(i)+1} - t_{f(i)}\\
+            &=\sum_{i=1}^{h} \delta t_{f(i)} \\
+            &\leq \delta \sum_{i=1}^{h}N_i = \delta N \hspace{20mm} \text{as $N_i\in [t_{f(i)}, t_{f(i)+1})$}
+\end{align*}
+To analyse the message cost, if $t_{f(i)}\leq N_i < t_{f(i)+1}$
+then the total messages sent is $f(i)$. Since $t_{f(i)} = (1+\delta)^{f(i)+1}$ it follows that 
+\begin{align*}
+    f(i) &= 1 + \frac{\log (t_{f(i)})}{\log(1+\delta)} \\
+         &\leq 1 + \frac{\log (N_i)}{\log(1+\delta)} \\
+\end{align*}
+The total messages sent from all sites therefore is 
+\begin{align*}
+    \sum_{i=1}^{h} f(i) &\leq \sum_{i=1}^{h}1 + \frac{\log (N_i)}{\log(1+\delta)} \\
+    &= h + \frac{1}{\log(1+\delta)}\sum_{i=1}^{h}\log N_i \\
+    &\leq h + h\frac{\log(\frac{N}{h})}{\log(1+\delta)}
+\end{align*}
+The final inequality comes noting that $\sum \log N_i = \log(\prod N_i)$ is maximised when $N_i = N/h$ for all $i$. The paper provides some further details on how to show this. Finally, we note that $\log^{-1}(1+\delta) = O(\frac{1}{\delta})$ and thus the total communication cost is $O(\frac{h}{\delta}\log\frac{N}{h})$ which for our purposes is effectively $O(\frac{h}{\delta}\log\frac{\tau}{h})$.
+
+\subsubsection*{Blended Threshold}
+A final scheme proposed in the paper, combines the best of both worlds by setting local threholds as 
+$$t_j = (1+\alpha\delta)t_{j-1} + (1+\alpha)\frac{\delta\tau}{m}$$
+for some hyperparemeter $0\leq\alpha\leq1$. We won't cover the details here but the total messagin cost is $O(\frac{h}{\alpha\delta}\log(1+\alpha(\frac{N}{\tau}-1)))$. This likely won't be of interest, but the value of $\alpha$ can be throttled over the life of the algorithm to reduce message costs based on $N$. Similarly, the paper details that given an expected value of $N$ or a probability distribution over $N$ there's a procedure to select $\alpha$ that will result in the smallest amount of messages required. When solving for this optimal value of $\alpha$ the performance of this method is theoretically (and reportedly experimentally) more efficient then the proportinal threshold scheme.
+
+
+\subsection*{Negative Updates}
+As noted in section 6 of the paper, the static protocols remain correct when negative updates are permitted. Instead of checking for thresholds being exceeded, we must simply also check that the lower bound does in fact remain a lower bound. If either condition is violated, local error bounds are recomputed and the coordinator is informed. If of interest, the paper also proposes ways to extend the adaptive threshold schemes so that negative updates are also allowed. \\
+\\
+Of course, the bounds on communication no longer quite hold, as there could be additional messages. Other work has explored the complexity of distributed monitoring when negative updates are allowed \cite{DTwithoutmonotonicity}, though the bounds obtained require some assumptions on the distribution of the data stream, which we do not make in our works.
+
+\newpage
+\subsection*{Extending the DT algorithm}
+
+We now want to leverage this new algorithm to modify the existing RTS solution from \cite{Gan2016} to support a more general type of RTS query in which $v(e_t) \in \mathbb{R}^d$
+
+\newpage
+\bibliographystyle{unsrt}%Used BibTeX style is unsrt
+\bibliography{sample}
+
+\end{document}
