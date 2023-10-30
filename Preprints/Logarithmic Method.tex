@@ -1,0 +1,88 @@
+\documentclass{article}
+
+% PACKAGES  
+\usepackage[utf8]{inputenc}
+\usepackage{amsbsy}
+\usepackage{fixltx2e}
+\usepackage{amsfonts}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{color} 
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+\usepackage{appendix}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{minted}
+\def\code#1{\texttt{#1}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2.0cm]{geometry}
+
+\usepackage{pgfgantt}
+
+% Theorem environments
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+
+% Title page
+
+\begin{document}
+\hspace{95mm}\domark{Notes Prepared for M.Sc Thesis}
+
+\section*{Logarithmic Method}
+
+We consider \textit{decomposable problems}. Formally, consider a set of input elements $S$ which can be partitioned into subsets $S_1$ and $S_2$. A query on $S$ is \textit{decomposable} if the result of the query can be determined in constant time given the results of the query on $S_1$ and $S_2$. For a simple illustration consider the query $x\in S$? This can be determined instantly from the results of queries $x\in S_1$? and $x\in  S_2$? Given a static Data Structure that supports a decomposable query, we now introduce a method first proposed by Bentley and Sax \cite{BENTLEY1980301} to make the Data Structure \textit{partially dynamic}; that is, supports insertions, but not necessarily deletions.  \\
+\\
+Let $n=|S|$ be the number of elements that have been inserted so far into the data structure (initlaly, we have $n=0$). At all times, the method partitions $S$ into $h = \lfloor\log n \rfloor + 1$ pairwise disjoint partitions which we call $S_0, \dots, S_{h-1}$. At all times over the life of the data structure, $S_i$ is either empty, or contains precisely $2^i$ elements. Associated to each $S_i$ is a copy of the static data structure $T_i$ on the possible $2^i$ elements of $S_i$
+
+\subsubsection*{Insertion}
+
+Consider a new element $e$ being added to $S$, we first determine the smallest $i$ such that $S_i = \emptyset$. In the case that $i=0$ we are done, otherwise $i>0$ and we union  $S_0, \dots, S_{i-1}$ along with $e$ into $S_i$. Note that this results in 
+\begin{align*}
+    |S_i| &= 2^0 + \dots + 2^{i-1} +1 \\
+          &= 2^i
+\end{align*}
+We now reset $S_j \leftarrow\emptyset$  and destroy associated data structures $T_j$ for $j = 0, \dots, i-1$. Notice that this method is general as it never \textit{modified} the data structure to introduce a method for insertion, but rather performed a systematic rebuild of the structure. 
+
+\subsubsection*{Query}
+
+The necessity for decomposable queries now becomes obvious. To perform a query $q$ on $S$, we run the query on $S_0, \dots S_{h-1}$ and then use these results to answer the query for $S$.
+
+\subsubsection*{Analysis}
+
+What running time overheads does this method add to the running time of the algorithms that comprise our underlying data structure. Suppose that for an input instance of size $n$ our static structure can be build in time $bld(n)$, answer queries in $qry(n)$ and occupies space at most $spc(n)$. We now analyse the complexity of our semi-dynamic structure. \\
+\\
+\textbf{space:} Since $S_0,\dots,S_{h-1}$ forms a partition of $S$, it follows that the space of the total structure $T$ is equal to 
+\begin{align*}
+    spc(S) &= \sum_{i=0}^{h} spc(S_i) \\
+    &\leq \sum_{i=0}^{h} spc(2^i)
+\end{align*}
+\textbf{query:} Since a query on $S$ involes a query on $S_0, \dots, S_{h-1}$ plus some constant overhead. As before, this is given by 
+\begin{align*}
+    qry(S) &\leq \sum_{i=0}^{h}qry(2^i) 
+\end{align*}
+\textbf{Insertion:} This is the most interesting case to analyse, as it is clear that not all insertions can be carried out in low cost. In the worst case, an insertion can avalanche a recombination over the $h = O(\log n)$ partitions. As it turns out however, the \textit{amortised} cost of an insertion is quite low. \\
+We will show the amortised cost via an \textit{accounting} argument.
+
+\newpage
+\bibliographystyle{unsrt}%Used BibTeX style is unsrt
+\bibliography{sample}
+
+\end{document}
