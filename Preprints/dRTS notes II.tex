@@ -44,7 +44,7 @@
 % Title page
 
 \begin{document}
-\hspace{95mm}\domark{Notes Prepared for Friday 29.09.2023}
+\hspace{95mm}\domark{Notes Prepared for Friday 3.10.2023}
 
 \section*{Dynamic RTS Queries II}
 
@@ -56,15 +56,18 @@ We continue our discussion on the following type of Range Query:
 
 Our problem formulation is to design an algorithm / data structure to efficiently process $m$ such queries. After some thought, we found we were able to find a method to solve one of the simpler forms of d-RTS queries, which we call \textit{equal-additive}:
 
-\begin{definition}[Equal, Additive d-RTS Query]
-    
+\begin{definition}[Additive d-RTS Query]
+    An Additive d-RTS query specifies a tuple $(R_{q(t)}, \tau_q)$ where $\tau_q\in \mathbb{N}$ is a threshold, and $R_{q(t)}$ is updated according to
+    $$R_{q(t)} \leftarrow R_{q(t-1)} + \Delta_t$$
 \end{definition}
 
-Moreover, we defined the multiplicative relative case: 
 
-\begin{definition}[Equal, Relative d-RTS Query]
-    this is the one where everything is of equal length
+\begin{definition}[Mutliplicative d-RTS Query]
+    An Additive d-RTS query specifies a tuple $(R_{q(t)}, \tau_q)$ where $\tau_q\in \mathbb{N}$ is a threshold, and $R_{q(t)}$ is updated according to
+    $$R_{q(t)} \leftarrow R_{q(t-1)} \cdot \Delta_t$$
 \end{definition}
+
+
 
 
 

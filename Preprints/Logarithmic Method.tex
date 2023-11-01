@@ -79,7 +79,18 @@ What running time overheads does this method add to the running time of the algo
     qry(S) &\leq \sum_{i=0}^{h}qry(2^i) 
 \end{align*}
 \textbf{Insertion:} This is the most interesting case to analyse, as it is clear that not all insertions can be carried out in low cost. In the worst case, an insertion can avalanche a recombination over the $h = O(\log n)$ partitions. As it turns out however, the \textit{amortised} cost of an insertion is quite low. \\
-We will show the amortised cost via an \textit{accounting} argument.
+We will show the amortised cost via an \textit{accounting} argument. \\
+\\
+Recall that to insert an element we destroy the data structuces on $S_1, \dots,S_{i-1}$ and then build on the $2^i$ elements on $S_i$. Thus, the build time is precisely $bld(2^i)$. We charge the cost over the $2^i$ elements, and thus each element bears $\frac{1}{2^i}bld(2^i)$ cost. After performing $n$ insertions, how much cost can an element be charged this way? \\
+The crucial observation is that, an element can only move from a lower indexed subset to a higher one. That is, an element can only move from $S_i$ to $S_j$ where $i < j$. Hence, an element can be amortised at most
+$$\sum_{i=0}^{h-1} \frac{1}{2^i}bld(2^i)$$
+This above expression gives the amortised cost of an insertion.
+
+\subsubsection*{Application: RTS}
+Let's show a quick application of this technique to the RTS algorithm in \cite{Gan2016}. Looking at section 4.1 of the paper, the first step in moving away from the constrained case to the more general one is to allow for insertions. To do this, the algorithm applies logarithmic rebuilding by spliting the $m$ queries over $g = O(\log n)$ groups, and construcst end point trees $T_1, \dots, T_g$. Follwing the insertion algorithm for logarithmic rebuilding above, a new query is built into an empty $T_i$, along with the queries of trees $T_1, \dots, T_{i-1}$. The resulting number of elements in the tree at $T_i$ is, as above, $2^i = O(m)$. By plugging in the amortised analysis above, this gives the total time for the insertion to be: 
+$$O(\frac{1}{2^i}bld(2^i)) = O(\log 2^i) = O(\log m)$$
+
+
 
 \newpage
 \bibliographystyle{unsrt}%Used BibTeX style is unsrt
