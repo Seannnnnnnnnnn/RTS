@@ -20,7 +20,7 @@
 \usepackage{amsthm}
 \usepackage{fancyhdr}
 \usepackage[T1]{fontenc}
-\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\usepackage[colorinlistoftodos,prependcaption]{todonotes}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{minted}
@@ -28,6 +28,17 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2.0cm]{geometry}
+
+\usepackage[]{mdframed}
+
+
+% draw a frame around given text
+\newcommand{\framedtext}[1]{%
+\par%
+\noindent\fbox{%
+    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{#1}%
+}%
+}
 
 \usepackage{pgfgantt}
 
@@ -46,7 +57,7 @@
 \begin{document}
 \hspace{95mm}\domark{Notes Prepared for Friday 3.10.2023}
 
-\section*{Negative RTS queries}
+\section*{Negative-Weighted RTS queries}
 
 
 Another important extension to current research is to consider the case where stream weights can be negative integers. For a quick illustration as to why such an extension could be of practical importance, High Frequency Trading firms (HFTs) often consider RTS queries over the stream of \textit{limit order book insertions} \cite{HFTData}, which include \textit{matched} trades, \textit{limit} orders (orders to buy / sell at a specified future price) and \textit{cancellation orders}. Whilst matched and limit orders can be modelled in our current scenario, the cancellation orders would require an RTS algorithm to account for negative weights. With cancellation orders accounting for 96\% of order book transactions \citep{HFTData}, being able to model such scenarios is likely to be of interest to the HFT community. \\
@@ -125,7 +136,7 @@ $$t_j = (1+\alpha\delta)t_{j-1} + (1+\alpha)\frac{\delta\tau}{m}$$
 for some hyperparemeter $0\leq\alpha\leq1$. We won't cover the details here but the total messagin cost is $O(\frac{h}{\alpha\delta}\log(1+\alpha(\frac{N}{\tau}-1)))$. This likely won't be of interest, but the value of $\alpha$ can be throttled over the life of the algorithm to reduce message costs based on $N$. Similarly, the paper details that given an expected value of $N$ or a probability distribution over $N$ there's a procedure to select $\alpha$ that will result in the smallest amount of messages required. When solving for this optimal value of $\alpha$ the performance of this method is theoretically (and reportedly experimentally) more efficient then the proportinal threshold scheme.
 
 
-\subsection*{Negative Updates}
+\subsubsection*{Negative Updates}
 As noted in section 6 of the paper, the static protocols remain correct when negative updates are permitted. Instead of checking for thresholds being exceeded, we must simply also check that the lower bound does in fact remain a lower bound. If either condition is violated, local error bounds are recomputed and the coordinator is informed. If of interest, the paper also proposes ways to extend the adaptive threshold schemes so that negative updates are also allowed. \\
 \\
 Of course, the bounds on communication no longer quite hold, as there could be additional messages. Other work has explored the complexity of distributed monitoring when negative updates are allowed \cite{DTwithoutmonotonicity}, though the bounds obtained require some assumptions on the distribution of the data stream, which we do not make in our works.
@@ -133,7 +144,53 @@ Of course, the bounds on communication no longer quite hold, as there could be a
 \newpage
 \subsection*{Extending the DT algorithm}
 
-We now want to leverage this new algorithm to modify the existing RTS solution from \cite{Gan2016} to support a more general type of RTS query in which $v(e_t) \in \mathbb{R}^d$
+We now want to leverage this new algorithm to modify the existing RTS solution from \cite{Gan2016} to support a more general type of RTS query in which $w(e_t) \in \mathbb{R}^d$. Given we will be utilising the algorithms explored above, we will be solving a $\delta$-efficient RTS problem where, given an RTS query $q = (R, \tau)$, data stream $\{e_t\}_{t=1}^{n}$ where each stream element carries a value $v(e_t)\in\mathbb{R}^d$ and $w(e_t)\in\mathbb{R}$ \\
+\\
+The algorithm proceeds as before, given $m$ RTS queries of the form $q_i = (R_i, \tau_i)$ we construct the end point tree $T$ on the endpoints of $R_1,\dots,R_m$. As before, each internal node in $T$ corresponds to a jurisdiction interval, and we define the \textit{canonical node set} $Q_i$ of each query $q_i$ as the smallest collection of vertices whose union of jurisdiction intervals is $R_i$. Finally, each node in $v\in V(T)$ has a corresponding counter $c_v \leftarrow 0$\\
+\\
+To process a stream element $e_t$, we trace root-leaf paths based on $v(e_t)$, updating counters located at vertices along the path. As before, we need to consider the \textit{slack inspection} costs and when messages should be updated as part of the slack inspection. In \cite{Gan2016} this is done by maintaining min-heaps at each internal node by the key:
+\begin{align*}
+    \sigma_q &= \lambda_q + \Bar{c}_q(u) \\
+              &= \left\lfloor \frac{\tau_q}{2|Q_q|}\right\rfloor + \Bar{c}_{q}(u)
+\end{align*}
+Where $\lambda_q$ above is the slack value from the previous distributed tracking algorithm. In our new algorithm, a participant $s_i$ maintains local thresholds $t_{f(i)}, t_{f(i)+1}$ and messages the coordinator whenever it's local counter $\hat{N}\notin [t_{f(i)}, t_{f(i)+1}]$. Thus, if we denote our local counter by $\hat{N}$, we can borrow the previous min-heap strategy with keys: 
+\begin{align*}
+    \sigma_q &= |t_{f(i)+1} - t_{f(i)}| + \hat{N}_q \\
+    &= \delta(1+\delta)^{f(i)-1} +\hat{N}_q
+\end{align*}
+
+\subsubsection*{Analysis}
+The analysis of the algorithm is as before. To initially simplify the analysis, we restrict ourselves to the one-time registration case and the dimensionality of the data stream values to $d=1$. As before, constructing the endpoint tree requires $O(m\log m)$. To process an a data stream of $O(n)$ elements, we trace a root-leaf path for each element and then perform slack inspections and message costs for the DT instances. The path tracing clearly requires $O(n\log m)$. The messaging cost requires $O(\frac{h_q}{\delta}\log \frac{\tau}{h_q})$. In the RTS context this is therefore 
+
+\begin{align}
+    O\left(\frac{h_q}{\delta}\log \frac{\tau}{h_q}\right) = O(\log m \log \tau_q)
+\end{align}
+\todo{is this true?}
+Provided the above is correct - analysis follows identically to \cite{Gan2016}. Additionally, the new distributed tracking algorithm results in no additional memory consumption. 
+
+\newpage
+\subsection*{The Previous Distributed Tracking Algorithm}
+The previous algorithm used in \cite{Gan2016} is as follows: 
+
+   \begin{mdframed}
+First, if $\tau\leq6h$ tehn solve problem using the straight forward solution of $O(\tau) = O(h)$ words. 
+    In the case that $\tau > 6h$ the coordinator shares every $s_i$ a slack value: 
+    \begin{align}
+        \lambda = \left\lfloor \frac{\tau}{2h}\right\rfloor
+    \end{align}
+    Then, $s_i$ intermittently sends a signal to the coordinator according to: 
+    Let $\Bar{c}_i$ be the counter value at the time of last signal to $q$ (initally $\Bar{c}_i\leftarrow0$. Send a signal as soon as $c_i - \Bar{c}_i = \lambda$
+    After receiving $h$ messages, the coordinator collects the precise counters $c_i$ from each participant, and rebegins the process on 
+    \begin{align}
+        \tau^\prime = \tau - \sum_{i=1}^{h}c_i
+    \end{align}
+\end{mdframed}
+
+It is not mentioned in the original paper \cite{Cormode2011}, though this algorithm can also deal with negative counter updates. To see this, local counters can be updated to be negative, and the slack conditions will essentially be `readjusted' after $h$ messages have crossed when $(4)$ is conducted.  Moreover, Whenever $\tau\leq6h$ and a negative update results in $\tau > 6h$, we can proceed revert back to a round-based strategy. \\
+\\
+The total number of messages per-round remains $O(h)$, but how many rounds is there? It clearly depends on how much negative components are added at each round. By inspection of $(4)$, we will have $\tau^\prime < \tau$ provided $\sum_{i=1}^{h} c_i > 0$. By the aglorithm, $(4)$ is never computed unless we have $h$ positive \textit{additions} of $\lambda$. When allowing for negative updates however, $h-1$ of those positive additions can be cancelled out, so we may have $\sum_{i=1}^{h}c_i \geq \lambda$. In this scenario, we have 
+
+
 
 \newpage
 \bibliographystyle{unsrt}%Used BibTeX style is unsrt
