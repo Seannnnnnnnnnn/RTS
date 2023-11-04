@@ -57,29 +57,55 @@
 \begin{document}
 \hspace{95mm}\domark{Notes Prepared for Friday 3.10.2023}
 
-\section*{Negative-Weighted RTS queries}
+\section*{Negative-Weighted Data Streams}
 
 
-Another important extension to current research is to consider the case where stream weights can be negative integers. For a quick illustration as to why such an extension could be of practical importance, High Frequency Trading firms (HFTs) often consider RTS queries over the stream of \textit{limit order book insertions} \cite{HFTData}, which include \textit{matched} trades, \textit{limit} orders (orders to buy / sell at a specified future price) and \textit{cancellation orders}. Whilst matched and limit orders can be modelled in our current scenario, the cancellation orders would require an RTS algorithm to account for negative weights. With cancellation orders accounting for 96\% of order book transactions \citep{HFTData}, being able to model such scenarios is likely to be of interest to the HFT community. \\
+Another extension to current research is to consider the case where stream weights can be negative integers. For a quick illustration as to why such an extension could be of practical importance, High Frequency Trading firms (HFTs) often consider RTS queries over the stream of \textit{limit order book insertions} \cite{HFTData}, which include \textit{matched} trades, \textit{limit} orders (orders to buy / sell at a specified future price) and \textit{cancellation orders}. Whilst matched and limit orders can be modelled in our current scenario, the cancellation orders would require an RTS algorithm to account for negative weights. With cancellation orders accounting for 96\% of order book transactions \citep{HFTData}, being able to model such scenarios is likely to be of interest to the HFT community. \\
 \\
-From a technical perspective, as all current state of the art solutions involve reductions to distributed tracking, this would require an examination of the algorithms framework. Fortunately, prior research provides \textit{off-the-shelf} solutions for distributed threshold monitoring that work with negative updates \cite{10.1145/1142473.1142507}. \\
+The previous algorithm used in \cite{Gan2016} is as follows: 
+
+   \begin{mdframed}
+First, if $\tau\leq6h$ tehn solve problem using the straight forward solution of $O(\tau) = O(h)$ words. 
+    In the case that $\tau > 6h$ the coordinator shares every $s_i$ a slack value: 
+    \begin{align}
+        \lambda = \left\lfloor \frac{\tau}{2h}\right\rfloor
+    \end{align}
+    Then, $s_i$ intermittently sends a signal to the coordinator according to: 
+    Let $\Bar{c}_i$ be the counter value at the time of last signal to $q$ (initally $\Bar{c}_i\leftarrow0$. Send a signal as soon as $c_i - \Bar{c}_i = \lambda$
+    After receiving $h$ messages, the coordinator collects the precise counters $c_i$ from each participant, and rebegins the process on 
+    \begin{align}
+        \tau^\prime = \tau - \sum_{i=1}^{h}c_i
+    \end{align}
+\end{mdframed}
+
+It is not mentioned in the original paper \cite{Cormode2011}, though this algorithm can also deal with negative counter updates. To see this, local counters can be updated to be negative, and the slack conditions will essentially be `readjusted' after $h$ messages have crossed when $(4)$ is conducted.  Moreover, Whenever $\tau\leq6h$ and a negative update results in $\tau > 6h$, we can proceed revert back to a round-based strategy. \\
 \\
-We cover the central ideas of the paper \textit{Communication-Efficient Distributed Monitoring of thresholded counts} \cite{10.1145/1142473.1142507} which as noted by the authors in section 5 of their paper, provides solutions to the case of negative updates. \\
+Thus, the algorithm remains correct in the presence of negative stream weights. Communication analysis is dificult though, and clearly depends on how \textit{negative} the stream weights are.
+
+\newpage
+\subsection*{Interval Counting on Streams}
+
+Whilst looking around for prior to solutions to negative Distributed Tracking algorithms - I encountered and played around with the following paper \cite{10.1145/1142473.1142507}. With some analysis, I solved a different type of problem which could be described as \textit{Interval Counting on Streams} (ICS). We define this problem formally as follows: \\
 \\
-As before, the paper modles the scenario of a central coordinator $q$ which conducts pairwise 2-way communication with remote sites $s_1, \dots, s_h$. Each remote site $s_i$ observers a data stream $e_1, \dots, e_n$. Each remote site maintains a local estimate of it's stream
+\textbf{The ICS problem setting}. We consider a data stream of $n$ elements $\{e_t\}_{t=1}^{n}$ where each element contains a weight $w(e_t)\in\mathbb{Z}$ and value $v(e_t)\in\mathbb{R}^d$. Moreover, we have a set of axis-parallel intervals $R_1,\dots,R_m\subset\mathbb{R}^d$. For each interval $R_i$ denote $S_i$ as the stream elements that have occurred after $R_i$ has been registered as an interval of interest, and for all $e\in S_i$ $v(e)\in R_i$. The goal of the algorithm is to maintain for each $i$: 
+$$\sum_{e\in S_i}w(e_i)$$ \\
+\\
+\textbf{Naive Solution}. Similar to the RTS problem, escaping the quadratic trap is deceptively difficult. The Naive solution is to maintain a count $N_i$ for each interval $R_i$, and for each stream element, check if $v(e)\in R_i$ and then increment $N_i$. Given $m$ intervals and a stream of $n$ elements this is clearly $O(nm)$. \\
+\\
+\textbf{A Better Solution}. Looking at the ideas of \cite{10.1145/1142473.1142507} with the main DT algorithm, we can come up with a sub-quardatic solution.
+
+
+Similar to other papers on distributed monitoring \cite{Cormode2011}, the paper models the scenario of a central coordinator $q$ which conducts pairwise 2-way communication with remote sites $s_1, \dots, s_h$. Each remote site $s_i$ observers a data stream $e_1, \dots, e_n$. Each remote site maintains a local estimate of it's stream
 $$N_i(t) = \sum_{t^\prime < t} w(e_{t^\prime})$$
-Given a threshold $\tau$ the cooridinator is interested in whenever the global count $N(t)$ over all streams exceeds $\tau$ where
+The cooridinator is interested in whenever the global count $N(t)$ over all streams where
 $$N(t) = \sum_{i=1}^{h} N_i(t)$$
 In particular, the paper provides a solution to this problem up to a $\delta$-\textit{efficient} threshold defined as follows 
 
 \begin{definition}[$\delta$-efficient threshold count]
-Given a threshold $\tau$ nand error guranatee $\delta$ the $\delta$-efficient thresholded count, $\hat{N}$ satisfies the following: 
-\begin{enumerate}
-    \item $0\leq \hat{N}\leq \tau$ whenever $N < \tau$
-    \item $N(1-\delta) < \hat{N} < N$ whenever $N \geq \tau$
-\end{enumerate}
+Given an error guarantee $\delta$ the $\delta$-efficient count, $\hat{N}$ satisfies the following: 
+$$N(1-\delta) < \hat{N} < N$$
+Where $N$ is the \textit{`true'} count 
 \end{definition}
-It is important to note that for our purposes for the RTS problem, we are particularly interested in the cases where $\delta\rightarrow0$, so we can determine, as accurately as possible, the precise moment that the threshold has been reached and the RTS query matured.
 
 \subsection*{Algorithm Overview}
 Similar to the distributed tracking algorithms we have seen before, the algorithm proposed in \cite{10.1145/1142473.1142507} sets local threhsolds at each site. Unlike the previous use of \textit{slack values}, at each site $S_i$ thresholds $t_{i,j}$ for $j=1,\dots$ are setso that the local count $\hat{N}_i(t)$ always satisfies
@@ -92,19 +118,11 @@ If condition $(1)$ is violated, updates are sent to the coordinator and new thre
 changes
     \item \textbf{Adaptive Thresholding}: when old thresholds are violated, new thresholds at the remote sites are chosen by the central site according to the observed conditions, to dynamically reduce the communication overhead
 \end{enumerate}
-As noted by the authors While the adaptive thresholding methods can be expected to perform better than the static methods, the static methods are desirable when the capabilities of the remote site are limited due to the computational overhead that they add. For now, we only consider the three schemes proposed to set static local thresholds. In the communication cost analysis of each algorithm, we assume that updates are always positive.
+As noted by the authors While the adaptive thresholding methods can be expected to perform better than the static methods, the static methods are desirable when the capabilities of the remote site are limited due to the computational overhead that they add. For now, we only consider the three schemes proposed to set static local thresholds. In the communication cost analysis of each algorithm, we assume that updates are always positive. \\
+\\
+The paper provides a number of methods to set these local thresholds, one method we are particularly interested in is the following scheme: 
 
-\subsubsection*{Uniform Threshold}
-The simplest solution is to set hte threshold levels at each remote site as $t_j = \frac{j\delta \tau}{h}$. To see that considition \textit{2} is satisfied when $N\geq \tau$ the total error is given by 
-\begin{align*}
-    \hat{N} &\leq \sum_{i=1}^{h}t_{i,f(i)+1} - t_{i,f(i)} \\
-    &= \sum_{i=1}^{h}\frac{\delta\tau}{h} \\ 
-    &= \delta\tau \leq \delta N
-\end{align*}
-For a current global count of $N$, a message is sent, in the worst case, with every increase of $\delta \tau / h$ increase in local counts. This means, the total number of messages cannot exceed $\lceil N / (\delta \tau / h) \rceil = O(\frac{hN}{\delta\tau})$
-
-
-\subsubsection*{Proportional Threshold}
+\subsubsection*{Proportional Threshold Scheme}
 
 We can improve communication costs by setting a threshold that is proportional to the local counts. The following scheme is to use: 
 
@@ -128,25 +146,20 @@ The total messages sent from all sites therefore is
     &= h + \frac{1}{\log(1+\delta)}\sum_{i=1}^{h}\log N_i \\
     &\leq h + h\frac{\log(\frac{N}{h})}{\log(1+\delta)}
 \end{align*}
-The final inequality comes noting that $\sum \log N_i = \log(\prod N_i)$ is maximised when $N_i = N/h$ for all $i$. The paper provides some further details on how to show this. Finally, we note that $\log^{-1}(1+\delta) = O(\frac{1}{\delta})$ and thus the total communication cost is $O(\frac{h}{\delta}\log\frac{N}{h})$ which for our purposes is effectively $O(\frac{h}{\delta}\log\frac{\tau}{h})$.
-
-\subsubsection*{Blended Threshold}
-A final scheme proposed in the paper, combines the best of both worlds by setting local threholds as 
-$$t_j = (1+\alpha\delta)t_{j-1} + (1+\alpha)\frac{\delta\tau}{m}$$
-for some hyperparemeter $0\leq\alpha\leq1$. We won't cover the details here but the total messagin cost is $O(\frac{h}{\alpha\delta}\log(1+\alpha(\frac{N}{\tau}-1)))$. This likely won't be of interest, but the value of $\alpha$ can be throttled over the life of the algorithm to reduce message costs based on $N$. Similarly, the paper details that given an expected value of $N$ or a probability distribution over $N$ there's a procedure to select $\alpha$ that will result in the smallest amount of messages required. When solving for this optimal value of $\alpha$ the performance of this method is theoretically (and reportedly experimentally) more efficient then the proportinal threshold scheme.
+The final inequality comes noting that $\sum \log N_i = \log(\prod N_i)$ is maximised when $N_i = N/h$ for all $i$. The paper provides some further details on how to show this. Finally, we note that $\log^{-1}(1+\delta) = O(\frac{1}{\delta})$ and thus the total communication cost is $O(\frac{h}{\delta}\log\frac{N}{h})$
 
 
 \subsubsection*{Negative Updates}
-As noted in section 6 of the paper, the static protocols remain correct when negative updates are permitted. Instead of checking for thresholds being exceeded, we must simply also check that the lower bound does in fact remain a lower bound. If either condition is violated, local error bounds are recomputed and the coordinator is informed. If of interest, the paper also proposes ways to extend the adaptive threshold schemes so that negative updates are also allowed. \\
+As noted in section 6 of the paper, the static protocols remain correct when negative updates are permitted. Instead of checking for upper bounds being exceeded, we must simply also check that the lower bound does in fact remain a lower bound. If either condition is violated, local error bounds are recomputed and the coordinator is informed. If of interest, the paper also proposes ways to extend the adaptive threshold schemes so that negative updates are also allowed. \\
 \\
 Of course, the bounds on communication no longer quite hold, as there could be additional messages. Other work has explored the complexity of distributed monitoring when negative updates are allowed \cite{DTwithoutmonotonicity}, though the bounds obtained require some assumptions on the distribution of the data stream, which we do not make in our works.
 
-\newpage
+
 \subsection*{Extending the DT algorithm}
 
-We now want to leverage this new algorithm to modify the existing RTS solution from \cite{Gan2016} to support a more general type of RTS query in which $w(e_t) \in \mathbb{R}^d$. Given we will be utilising the algorithms explored above, we will be solving a $\delta$-efficient RTS problem where, given an RTS query $q = (R, \tau)$, data stream $\{e_t\}_{t=1}^{n}$ where each stream element carries a value $v(e_t)\in\mathbb{R}^d$ and $w(e_t)\in\mathbb{R}$ \\
+We now want to leverage this new algorithm to modify the existing RTS solution from \cite{Gan2016} to support registering interval-counting queries on a data stream, where each query $q_i$ corresponds to an interval of interest $R_i$.\\
 \\
-The algorithm proceeds as before, given $m$ RTS queries of the form $q_i = (R_i, \tau_i)$ we construct the end point tree $T$ on the endpoints of $R_1,\dots,R_m$. As before, each internal node in $T$ corresponds to a jurisdiction interval, and we define the \textit{canonical node set} $Q_i$ of each query $q_i$ as the smallest collection of vertices whose union of jurisdiction intervals is $R_i$. Finally, each node in $v\in V(T)$ has a corresponding counter $c_v \leftarrow 0$\\
+The algorithm proceeds as before, given $m$ interval queries, we register them as RTS queries of the form $q_i = (R_i, +\infty)$. We construct the end point tree $T$ on the endpoints of $R_1,\dots,R_m$. As before, each internal node in $T$ corresponds to a jurisdiction interval, and we define the \textit{canonical node set} $Q_i$ of each query $q_i$ as the smallest collection of vertices whose union of jurisdiction intervals is $R_i$. Finally, each node in $v\in V(T)$ has a corresponding counter $c_v \leftarrow 0$\\
 \\
 To process a stream element $e_t$, we trace root-leaf paths based on $v(e_t)$, updating counters located at vertices along the path. As before, we need to consider the \textit{slack inspection} costs and when messages should be updated as part of the slack inspection. In \cite{Gan2016} this is done by maintaining min-heaps at each internal node by the key:
 \begin{align*}
@@ -155,42 +168,20 @@ To process a stream element $e_t$, we trace root-leaf paths based on $v(e_t)$, u
 \end{align*}
 Where $\lambda_q$ above is the slack value from the previous distributed tracking algorithm. In our new algorithm, a participant $s_i$ maintains local thresholds $t_{f(i)}, t_{f(i)+1}$ and messages the coordinator whenever it's local counter $\hat{N}\notin [t_{f(i)}, t_{f(i)+1}]$. Thus, if we denote our local counter by $\hat{N}$, we can borrow the previous min-heap strategy with keys: 
 \begin{align*}
-    \sigma_q &= |t_{f(i)+1} - t_{f(i)}| + \hat{N}_q \\
-    &= \delta(1+\delta)^{f(i)-1} +\hat{N}_q
+    \sigma_q &= \min(t_{f(i)+1}-\hat{N}, \hat{N}-t_{f(i)}) + \Bar{N}_q 
 \end{align*}
+Where $\Bar{N}_q$ was the value of the counter at the previous communication.
+
 
 \subsubsection*{Analysis}
-The analysis of the algorithm is as before. To initially simplify the analysis, we restrict ourselves to the one-time registration case and the dimensionality of the data stream values to $d=1$. As before, constructing the endpoint tree requires $O(m\log m)$. To process an a data stream of $O(n)$ elements, we trace a root-leaf path for each element and then perform slack inspections and message costs for the DT instances. The path tracing clearly requires $O(n\log m)$. The messaging cost requires $O(\frac{h_q}{\delta}\log \frac{\tau}{h_q})$. In the RTS context this is therefore 
-
+The analysis of the algorithm is as before. To initially simplify the analysis, we restrict ourselves to the one-time registration case and the dimensionality of the data stream values to $d=1$. As before, constructing the endpoint tree requires $O(m\log m)$. To process an a data stream of $O(n)$ elements, we trace a root-leaf path for each element and then perform slack inspections and message costs for the DT instances. The path tracing clearly requires $O(n\log m)$. The messaging cost requires $O(\frac{h_q}{\delta}\log \frac{N}{h_q})$. In the RTS context this is therefore 
 \begin{align}
-    O\left(\frac{h_q}{\delta}\log \frac{\tau}{h_q}\right) = O(\log m \log \tau_q)
+    O\left(\frac{h_q}{\delta}\log \frac{N_i}{h_q}\right) = O(\log m \log N_{i})
 \end{align}
-\todo{is this true?}
-Provided the above is correct - analysis follows identically to \cite{Gan2016}. Additionally, the new distributed tracking algorithm results in no additional memory consumption. 
+Provided the above is correct - analysis follows identically to \cite{Gan2016}. This results in a runtime of $O(n\log m + m\log^2 m\log N_{max})$
 
-\newpage
-\subsection*{The Previous Distributed Tracking Algorithm}
-The previous algorithm used in \cite{Gan2016} is as follows: 
-
-   \begin{mdframed}
-First, if $\tau\leq6h$ tehn solve problem using the straight forward solution of $O(\tau) = O(h)$ words. 
-    In the case that $\tau > 6h$ the coordinator shares every $s_i$ a slack value: 
-    \begin{align}
-        \lambda = \left\lfloor \frac{\tau}{2h}\right\rfloor
-    \end{align}
-    Then, $s_i$ intermittently sends a signal to the coordinator according to: 
-    Let $\Bar{c}_i$ be the counter value at the time of last signal to $q$ (initally $\Bar{c}_i\leftarrow0$. Send a signal as soon as $c_i - \Bar{c}_i = \lambda$
-    After receiving $h$ messages, the coordinator collects the precise counters $c_i$ from each participant, and rebegins the process on 
-    \begin{align}
-        \tau^\prime = \tau - \sum_{i=1}^{h}c_i
-    \end{align}
-\end{mdframed}
-
-It is not mentioned in the original paper \cite{Cormode2011}, though this algorithm can also deal with negative counter updates. To see this, local counters can be updated to be negative, and the slack conditions will essentially be `readjusted' after $h$ messages have crossed when $(4)$ is conducted.  Moreover, Whenever $\tau\leq6h$ and a negative update results in $\tau > 6h$, we can proceed revert back to a round-based strategy. \\
-\\
-The total number of messages per-round remains $O(h)$, but how many rounds is there? It clearly depends on how much negative components are added at each round. By inspection of $(4)$, we will have $\tau^\prime < \tau$ provided $\sum_{i=1}^{h} c_i > 0$. By the aglorithm, $(4)$ is never computed unless we have $h$ positive \textit{additions} of $\lambda$. When allowing for negative updates however, $h-1$ of those positive additions can be cancelled out, so we may have $\sum_{i=1}^{h}c_i \geq \lambda$. In this scenario, we have 
-
-
+\subsubsection*{TODO}
+if interesting, flesh out the analysis for the more general case where we want to count stream elements over axis-parrallel ranges. Moreover, formally define the data structures methods for reportings counts.
 
 \newpage
 \bibliographystyle{unsrt}%Used BibTeX style is unsrt

@@ -54,21 +54,29 @@ We continue our discussion on the following type of Range Query:
     is a threshold, and $R_{q(t)} =[f_1(t), f_2(t)]$ is a variable subset of $R$, given by functions $f: t\rightarrow\mathbb{R}$ satisfying $f_1 < f_2$, and $t$ is the index of the data stream.
 \end{definition}
 
-Our problem formulation is to design an algorithm / data structure to efficiently process $m$ such queries. After some thought, we found we were able to find a method to solve one of the simpler forms of d-RTS queries, which we call \textit{equal-additive}:
+Our problem formulation is to design an algorithm / data structure to efficiently process $m$ such queries. We also defined the following special cases
 
 \begin{definition}[Additive d-RTS Query]
     An Additive d-RTS query specifies a tuple $(R_{q(t)}, \tau_q)$ where $\tau_q\in \mathbb{N}$ is a threshold, and $R_{q(t)}$ is updated according to
     $$R_{q(t)} \leftarrow R_{q(t-1)} + \Delta_t$$
 \end{definition}
+\textbf{Solution: Additive Case}. In the additiive case, we make the key observation that, for each interval
+$$v(e_t)\in R_{q(t)}  = R_{q(t-1)}+\Delta_t\iff v(e_t)-\sum_{t=1}\Delta_t\in R_{q(0)}$$
+We refer to this technique as \textit{shifting}. Hence, when processing a stream element, we simply shift $\sum \Delta_t$ from the value of the element, and then process as usual. A problem arises when allowing for insertions however - as queries can be registered at different time-stamps, we need to subtract different amounts of $\Delta_t$'s. Fortunately, we can take care of this with logarithmic building. \\
+\\
+Observe that whenever a new query is registered, we construct a new endpoint tree on $T_i$ and destroy trees $T_0, \dots, T_{i-1}$. Maintain a time stamp\footnote{I'll give an inductive proof that through this, all queries in $T_i$ are } of at what $t^\prime$ each query in tree $T_j$ is registered at, then rebuild the new endpoint tree at $T_i$ on $R_q \leftarrow R_q + \sum_{t = t^\prime}\Delta_t$
 
+\vspace{5mm}
 
 \begin{definition}[Mutliplicative d-RTS Query]
     An Additive d-RTS query specifies a tuple $(R_{q(t)}, \tau_q)$ where $\tau_q\in \mathbb{N}$ is a threshold, and $R_{q(t)}$ is updated according to
     $$R_{q(t)} \leftarrow R_{q(t-1)} \cdot \Delta_t$$
 \end{definition}
-
-
-
+\textbf{Solution. Multiplicative d-RTS Query} we can't use our shifting technique as we aren't shifting our query interval by some amount $\Delta_t$ at each time step, rather - the widths of the intervals are being stretched or shrunk. An immediate thought might be to do something as before, like $v(e_t) \leftarrow v(e_t) / \prod \Delta_t$, though some simple counter examples exist for why this can't work. Instead, we propose a different technique to performing the element processing step. \\
+\\
+Recall in our current solution to the RTS Problem we trace root-leaf paths in the endpoint tree $T$ based on $v(e_t)$, updating the counters at each node along the path. Hence a node $u$ in our endpoint tree contains $u$.key, $u$.counter and some other information. Moreover, from the construction of the endpoint tree, we see that the tree maintains the BST invariant 
+$$u.left.key \leq u.key < u.right.key$$
+now, instead of tracing our root-leaf path based on $u.key$, we simply trace based on $u.key  \prod \Delta_t$. Similar to before, we can handle queries having different time stamp registrations by our modified logarithmic rebuilding.
 
 
 
