@@ -1,0 +1,76 @@
+\documentclass{article}
+
+% PACKAGES  
+\usepackage[utf8]{inputenc}
+\usepackage{amsbsy}
+\usepackage{fixltx2e}
+\usepackage{amsfonts}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{color} 
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amssymb}
+\usepackage{appendix}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{minted}
+\def\code#1{\texttt{#1}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=2.0cm]{geometry}
+
+\usepackage{pgfgantt}
+
+% Theorem environments
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+
+% Title page
+
+\begin{document}
+\hspace{95mm}\domark{Notes Prepared for Friday 10.10.2023}
+
+\section*{Dynamic RTS Queries III}
+
+We continue our discussion on the following type of Range Query: 
+
+\begin{definition}[Dynamic RTS Query] A dynamic RTS (\textit{d-RTS}) query specifies a tuple $(R_{q(t)}, \tau_q)$ where $\tau_q \in \mathbb{N}$
+    is a threshold, and $R_{q(t)} =[f_1(t), f_2(t)]$ is a variable subset of $R$, given by functions $f: t\rightarrow\mathbb{R}$ satisfying $f_1 < f_2$, and $t$ is the index of the data stream.
+\end{definition}
+
+Our problem formulation is to design an algorithm / data structure to efficiently process $m$ such queries. Last week we developed the following theorem: 
+
+\begin{theorem}
+    Given a $m$ $d$-RTS queries of the form     $(R_{q(t)}, \tau_q)$ where $\tau_q \in \mathbb{N}$
+    is a threshold, and $R_{q(t)} =[f(t), f(t)]$ where $f_i$ satisfies: 
+    \begin{itemize}
+        \item $f_i$ is monotonic 
+        \item $f^{-1}$ exists and
+        \item $f^{-1}$ can be computed in $O(1)$
+    \end{itemize}
+    Then these $m$ queries can be processed in time $\Tilde{O}(n+m)$
+\end{theorem}
+\begin{proof}
+    Details to follow - but monotonicity preserves the ordering of end-points so we can apply the shifting technique 
+\end{proof}
+
+
+
+
+\end{document}
