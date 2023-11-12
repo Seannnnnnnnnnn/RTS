@@ -1,8 +1,11 @@
 %% All things Dist. Tracking and Weighted Dist. Tracking
+\section{Literature Review}
+
+Within this chapter we review the current literature on the RTS problem, and summarise the necessary results to arrive at the current State of the Art algorithm. 
 
 \subsection{Distributed Tracking}
 
-Perhaps the most enlightening discovery of prior literature on RTS is the connection to the seemingly remote problem of \textit{Distributed Tracking} \cite{Gan}. A problem of study from Distributed Computing, Distributed Tracking models the following scenario \cite{Cormode}: Consider a coordinator $q$ and a set of participcants $s_1, \dots, s_h$. Each participant has a corresponding counter $c_i$ initialised to 0, and the coordinator has a tolerance $\tau\in\mathbb{N}$. At each time step, at most one of the counters $c_i$ are incremented; that is, one or zero counters increase.  The goal of the Distributed Tracking is for the coordinator to report the instant that 
+Perhaps the most enlightening discovery of prior literature on RTS is the connection to the seemingly remote problem of \textit{Distributed Tracking} \cite{Cormode2011}, also known as \textit{Distributed Monitoring} or \textit{Distributed Functional Monitoring}. A problem of study from Distributed Computing, Distributed Tracking models the following scenario: Consider a coordinator $q$ and a set of participcants $s_1, \dots, s_h$. Each participant has a corresponding counter $c_i$ initialised to 0, and the coordinator has a tolerance $\tau\in\mathbb{N}$. At each time step, at most one of the counters $c_i$ are incremented; that is, one or zero counters increase.  The goal of the Distributed Tracking is for the coordinator to report the instant that 
 \begin{align}
     \sum_{i=1}^{h}c_i = \tau
 \end{align}
@@ -95,5 +98,3 @@ By reprising the proof of Theorem 1.1, The algorithm clearly terminates in $O(h\
     \end{align*}
 \end{proof}
 \todo{flesh out more}
-
-\subsection{Negative Distributed Tracking}
