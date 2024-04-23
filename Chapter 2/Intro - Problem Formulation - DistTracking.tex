@@ -1,9 +1,32 @@
 %% All things Dist. Tracking and Weighted Dist. Tracking
-\section{Literature Review}
+\chapter{Preliminaries}
 
-Within this chapter we review the current literature on the RTS problem, and summarise the necessary results to arrive at the current State of the Art algorithm. 
+We first discuss some of the algorithmic and analytical techniques and results necessary to understand the state of the art solutions for solving to the RTS problem and for analysing their performance.
 
-\subsection{Distributed Tracking}
+\section{Measuring Algorithm Performance \& Big Oh Notation}
+
+There are goure atomic operations that a CPU can perform: 
+\begin{itemize}
+    \item \textbf{Regiser (Re-)Initialization}: Set the content of a register to a fixed value, or to the content of another register.
+    \item \textbf{Arithmetic Operations}: Take two integers $a$ and $b$ stored in two registers, calculate the following and then store the result in a register
+    \item \textbf{Comparison and Branching}: Compare two integers $a$ and $b$ stored in two registers and decide which of the following is true: $a<b, a=b$ abd $a>b$
+    \item \textbf{Memory Access}: Take the memory address $p$ stored in a register, then perform one of a read or write operation at adress $p$
+\end{itemize}
+Every algorithm can be viewed as a sequence of these four atomic operations. The \textit{running time cost} of an algorithm is the measured by the number of operations in the sequence, as a function of the size of the input $n$. The \textit{space consumption} of an algorithm is the measured by the footprint of memory cells which it touches, that is, the peak memory usage when the algorithm is running. We will commonly describe the growth of said function in terms of their Big-$O$ and Big-$\Omega$ complexity defined as follows
+
+\begin{definition}[Big-$O$ Notation]
+    We $f(n)$ grows asymptotically no faster than $g(n)$ if there exists two positive constants $c_1$ and $c_2$ such that $f(n)\leq c_1 g(n)$ for all $n\geq c_2$. We define $O(g(n))$ as the family of functions that grow asymptotically no faster than $g(n)$.
+\end{definition}
+
+\begin{definition}[Big-$\Omega$ Notation]
+    We $f(n)$ grows asymptotically no slower than $g(n)$ if there exists two positive constants $c_1$ and $c_2$ such that $f(n)\geq c_1 g(n)$ for all $n\geq c_2$. We define $\Omega(g(n))$ as the family of functions that grow asymptotically no slower than $g(n)$.
+\end{definition}
+
+
+
+\newpage
+
+\section{Distributed Tracking}
 
 Perhaps the most enlightening discovery of prior literature on RTS is the connection to the seemingly remote problem of \textit{Distributed Tracking} \cite{Cormode2011}, also known as \textit{Distributed Monitoring} or \textit{Distributed Functional Monitoring}. A problem of study from Distributed Computing, Distributed Tracking models the following scenario: Consider a coordinator $q$ and a set of participcants $s_1, \dots, s_h$. Each participant has a corresponding counter $c_i$ initialised to 0, and the coordinator has a tolerance $\tau\in\mathbb{N}$. At each time step, at most one of the counters $c_i$ are incremented; that is, one or zero counters increase.  The goal of the Distributed Tracking is for the coordinator to report the instant that 
 \begin{align}
@@ -60,7 +83,7 @@ We consider the following algorithm presented by Cormorde, Muthukrishnan and Yi 
 \todo{finish off proof}
 
 
-\subsection{Weighted Distributed Tracking}
+\subsubsection*{Weighted Distributed Tracking}
 
 A slight modification which will be of later importance is to account for counter increments of the form
 $$c_i \leftarrow c_i + w \quad w \in \mathbb{N}$$
@@ -98,3 +121,6 @@ By reprising the proof of Theorem 1.1, The algorithm clearly terminates in $O(h\
     \end{align*}
 \end{proof}
 \todo{flesh out more}
+
+
+\section{Logarithmic Rebuilding}

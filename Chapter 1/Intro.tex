@@ -1,12 +1,10 @@
-\section{Introduction}
 
-\subsection{Motivation}
-This thesis is centered on efficient algorithms for dealing with big data. In the modern world of large data sets, seemingly simple computational tasks can become infeasible when dealing with a massive data stream. As a simple example of this phenomenon, consider the \textit{Count Distinct} problem where given a list of data elements $\{e_1,\dots, e_n\}$ where each element has some identifier $e_i.id$, determine how many unique element id's are in the stream.\\
-\\
-First year Computer Science students should instantly recognise a runtime-optimal solution to this problem; simply perform a linear scan of the data stream, maintain a set of seen element id's, and then simply return the size of the set. Whilst this algorithm delivers the exact answer in an optimal in $\Theta(n)$ time, reading the entire data stream into memory requires $\Omega(n)$ space, and the space consumption of the set can deprecate to $O(n)$. Whilst this may not seem immediately alarming, it is important to remember that the size of $n$ in modern computing can become massive, and thus render the space footprint of the algorithm as infeasible. \\
-\\
-For a practical example of where the \textit{Count Distinct} problem may arise, consider a large technology company that is required to report to it's stakeholders the number of average daily users of it's website. This would require scanning the stream of site visits $\{e_i\}_{i=1}^{n}$, and reporting the unique IP addresses stored within $e.id$. Given the practicality for the \textit{Count Distinct} problem, modern research on algorithms has leveraged various statistical and computational tools to devise state of the art algorithms such as \textit{HyperLogLog} \cite{karppa2022hyperlogloglog} to solve this problem using fractional memory footprint.  \\
-\\
+\chapter{Introduction}
+
+
+
+\section{Motivation}
+This thesis is centered on efficient algorithms for dealing with big data. In the modern world of large data sets, seemingly simple computational tasks can become infeasible when dealing with a massive data stream. 
 In this thesis, we consider a similar problem known as \textit{Range Thresholding on Streams} which was first studied in 2016 \cite{Gan2016}. In the RTS problem, we consider a data stream of elements $\{e_t\}^{n}_{t=1}$ where each data element possess: 
 \begin{itemize}
     \item A \textit{value} $v(e_t)\in\mathbb{R}^d$
@@ -25,7 +23,7 @@ For a motivating example of where such a query could arise, we turn our attentio
 \\
 Similar to our earlier example of the \textit{Count Distinct} problem, managing RTS queries is deceptively difficult. Given a stream of $n$ elements and $m$ RTS queries registered on the stream, checking for condition $(1)$ via a brute-force approach requires a prohibitively large quadratic $O(nm)$ time and $\Omega(n+m)$ space. The goal of this thesis is to summarise the literature, and detail how to escape the quadratic run time. Next, we characterise when we can solve new type of RTS Query, where the interval is allowed to move over the lifetime of the algorithm. Finally, we propose and test optimisations to the state of the art solution to the RTS problem dependant on the data stream.
 
-\subsection{Outline}
+\section{Thesis Outline}
 
 The remainder of this thesis is organised as follows; Chapter 2 is dedicated to a review and summary of the literature on RTS queries, as well as information on all necessary preliminaries to understand the state of the art solutions. Chapter 3 is dedicated to the original results of this thesis, from studying a new type of RTS query, to characterising when we can strengthen our theoretical bounds on runtime. Chapter 4 is dedicated to a performance study, where we implement and test our algorithms. Moreover, we provide an explanation of our methodology and testing environment for reproducability. Finally, we conclude our thesis is Chapter 5 which offers a summarised discussion of our results and offers relevant extensions to the direction of future research. As this thesis lies at the intersection of a traditional Computer Science thesis on Algorithms and Data Structures, we also provide an appendix with proofs of miscellaneous results for unfamiliar readers. 
 
