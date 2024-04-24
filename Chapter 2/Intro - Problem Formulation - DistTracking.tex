@@ -21,8 +21,7 @@ Every algorithm can be viewed as a sequence of these four atomic operations. The
 \begin{definition}[Big-$\Omega$ Notation]
     We $f(n)$ grows asymptotically no slower than $g(n)$ if there exists two positive constants $c_1$ and $c_2$ such that $f(n)\geq c_1 g(n)$ for all $n\geq c_2$. We define $\Omega(g(n))$ as the family of functions that grow asymptotically no slower than $g(n)$.
 \end{definition}
-
-
+For example, if an algorithm produces a sequence $n^2+4n$ atomic operations of an input of size $n$ we say that the \textit{runtime} of said algorithm is $O(n^2)$. Occasionally in this thesis we will be consider algorithms whose highest order term is a \textit{poloylogartithm} in $n$. In such cases we may use $\Tilde{O}(n)$ to abosorb the logarithmic terms. 
 
 \newpage
 
